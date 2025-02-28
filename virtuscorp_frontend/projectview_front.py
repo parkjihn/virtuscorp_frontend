@@ -11,7 +11,7 @@ def get_gitignore_patterns(directory):
                 line = line.strip()
                 if line and not line.startswith("#"):
                     ignore_patterns.add(line)
-    ignore_patterns.update(["package-lock.json", "README.md"])  # Exclude package-lock.json and README.md explicitly
+    ignore_patterns.update(["package-lock.json", "README.md","node_modules"])  # Exclude package-lock.json and README.md explicitly
     return ignore_patterns
 
 def is_ignored(path, ignore_patterns, base_directory):
