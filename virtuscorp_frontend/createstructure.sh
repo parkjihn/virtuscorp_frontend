@@ -3,7 +3,7 @@
 # Set error handling
 set -e
 
-# Base directory (текущая директория, так как приложение уже создано)
+# Base directory
 BASE_DIR="."
 
 # Color codes for output
@@ -11,93 +11,170 @@ GREEN='\033[0;32m'
 RED='\033[0;31m'
 NC='\033[0m' # No Color
 
-# Function to create directory and show status
-create_dir() {
-    if [ ! -d "$1" ]; then
-        if mkdir -p "$1"; then
-            echo -e "${GREEN}Created directory:${NC} $1"
+# Function to create file and show status
+create_file() {
+    if [ ! -f "$1" ]; then
+        if touch "$1"; then
+            echo -e "${GREEN}Created file:${NC} $1"
         else
-            echo -e "${RED}Failed to create directory:${NC} $1"
+            echo -e "${RED}Failed to create file:${NC} $1"
             exit 1
         fi
     else
-        echo -e "Directory already exists: $1"
+        echo -e "File already exists: $1"
     fi
 }
 
-echo "Creating additional directory structure for Virtus Corp Financial Metrics app..."
+echo "Creating empty files for Virtus Corp Financial Metrics app..."
 
-# Create main app structure
-create_dir "$BASE_DIR/app/(auth)/login"
-create_dir "$BASE_DIR/app/(auth)/register"
-create_dir "$BASE_DIR/app/dashboard/analytics"
-create_dir "$BASE_DIR/app/dashboard/forecasts"
-create_dir "$BASE_DIR/app/dashboard/forecasts/[id]"
-create_dir "$BASE_DIR/app/dashboard/metrics/categories"
-create_dir "$BASE_DIR/app/dashboard/metrics/comparison"
-create_dir "$BASE_DIR/app/dashboard/reports/[id]"
-create_dir "$BASE_DIR/app/dashboard/reports/generate"
-create_dir "$BASE_DIR/app/dashboard/settings/account"
-create_dir "$BASE_DIR/app/dashboard/settings/notifications"
-create_dir "$BASE_DIR/app/api/auth/[...nextauth]"
-create_dir "$BASE_DIR/app/api/charts/metrics"
-create_dir "$BASE_DIR/app/api/charts/forecasts"
-create_dir "$BASE_DIR/app/api/charts/reports"
-create_dir "$BASE_DIR/app/api/webhook"
+# Auth pages
+create_file "$BASE_DIR/app/(auth)/login/page.tsx"
+create_file "$BASE_DIR/app/(auth)/register/page.tsx"
 
-# Create components structure
-create_dir "$BASE_DIR/components/auth"
-create_dir "$BASE_DIR/components/charts/area"
-create_dir "$BASE_DIR/components/charts/bar"
-create_dir "$BASE_DIR/components/charts/line"
-create_dir "$BASE_DIR/components/charts/pie"
-create_dir "$BASE_DIR/components/charts/combined"
-create_dir "$BASE_DIR/components/charts/common"
-create_dir "$BASE_DIR/components/charts/utils"
-create_dir "$BASE_DIR/components/dashboard/cards"
-create_dir "$BASE_DIR/components/dashboard/forms"
-create_dir "$BASE_DIR/components/dashboard/tables"
-create_dir "$BASE_DIR/components/ui"
+# Dashboard pages
+create_file "$BASE_DIR/app/dashboard/analytics/page.tsx"
+create_file "$BASE_DIR/app/dashboard/analytics/loading.tsx"
+create_file "$BASE_DIR/app/dashboard/forecasts/page.tsx"
+create_file "$BASE_DIR/app/dashboard/forecasts/loading.tsx"
+create_file "$BASE_DIR/app/dashboard/forecasts/[id]/page.tsx"
+create_file "$BASE_DIR/app/dashboard/metrics/page.tsx"
+create_file "$BASE_DIR/app/dashboard/metrics/loading.tsx"
+create_file "$BASE_DIR/app/dashboard/metrics/categories/page.tsx"
+create_file "$BASE_DIR/app/dashboard/metrics/comparison/page.tsx"
+create_file "$BASE_DIR/app/dashboard/reports/page.tsx"
+create_file "$BASE_DIR/app/dashboard/reports/loading.tsx"
+create_file "$BASE_DIR/app/dashboard/reports/[id]/page.tsx"
+create_file "$BASE_DIR/app/dashboard/reports/generate/page.tsx"
+create_file "$BASE_DIR/app/dashboard/settings/page.tsx"
+create_file "$BASE_DIR/app/dashboard/settings/account/page.tsx"
+create_file "$BASE_DIR/app/dashboard/settings/notifications/page.tsx"
 
-# Create configuration directories
-create_dir "$BASE_DIR/config"
+# API routes
+create_file "$BASE_DIR/app/api/auth/[...nextauth]/route.ts"
+create_file "$BASE_DIR/app/api/charts/metrics/route.ts"
+create_file "$BASE_DIR/app/api/charts/forecasts/route.ts"
+create_file "$BASE_DIR/app/api/charts/reports/route.ts"
+create_file "$BASE_DIR/app/api/webhook/route.ts"
 
-# Create hooks structure
-create_dir "$BASE_DIR/hooks/charts"
+# Auth components
+create_file "$BASE_DIR/components/auth/login-form.tsx"
+create_file "$BASE_DIR/components/auth/register-form.tsx"
+create_file "$BASE_DIR/components/auth/auth-form.tsx"
 
-# Create lib structure
-create_dir "$BASE_DIR/lib/api/charts"
-create_dir "$BASE_DIR/lib/api/metrics"
-create_dir "$BASE_DIR/lib/api/reports"
-create_dir "$BASE_DIR/lib/charts/adapters"
-create_dir "$BASE_DIR/lib/charts/transformers"
-create_dir "$BASE_DIR/lib/charts/constants"
+# Chart components
+create_file "$BASE_DIR/components/charts/area/revenue-chart.tsx"
+create_file "$BASE_DIR/components/charts/area/profit-chart.tsx"
+create_file "$BASE_DIR/components/charts/area/growth-chart.tsx"
+create_file "$BASE_DIR/components/charts/bar/expenses-chart.tsx"
+create_file "$BASE_DIR/components/charts/bar/comparison-chart.tsx"
+create_file "$BASE_DIR/components/charts/bar/metrics-chart.tsx"
+create_file "$BASE_DIR/components/charts/line/trend-chart.tsx"
+create_file "$BASE_DIR/components/charts/line/forecast-chart.tsx"
+create_file "$BASE_DIR/components/charts/line/performance-chart.tsx"
+create_file "$BASE_DIR/components/charts/pie/distribution-chart.tsx"
+create_file "$BASE_DIR/components/charts/pie/allocation-chart.tsx"
+create_file "$BASE_DIR/components/charts/pie/breakdown-chart.tsx"
+create_file "$BASE_DIR/components/charts/combined/revenue-expenses-chart.tsx"
+create_file "$BASE_DIR/components/charts/combined/metrics-comparison-chart.tsx"
+create_file "$BASE_DIR/components/charts/combined/performance-analysis-chart.tsx"
+create_file "$BASE_DIR/components/charts/common/chart-container.tsx"
+create_file "$BASE_DIR/components/charts/common/chart-header.tsx"
+create_file "$BASE_DIR/components/charts/common/chart-legend.tsx"
+create_file "$BASE_DIR/components/charts/common/chart-tooltip.tsx"
+create_file "$BASE_DIR/components/charts/common/chart-controls.tsx"
+create_file "$BASE_DIR/components/charts/utils/chart-themes.ts"
+create_file "$BASE_DIR/components/charts/utils/formatters.ts"
+create_file "$BASE_DIR/components/charts/utils/generators.ts"
 
-# Create styles structure
-create_dir "$BASE_DIR/styles/charts"
+# Dashboard components
+create_file "$BASE_DIR/components/dashboard/cards/metric-card.tsx"
+create_file "$BASE_DIR/components/dashboard/cards/summary-card.tsx"
+create_file "$BASE_DIR/components/dashboard/cards/trend-card.tsx"
+create_file "$BASE_DIR/components/dashboard/forms/filter-form.tsx"
+create_file "$BASE_DIR/components/dashboard/forms/report-form.tsx"
+create_file "$BASE_DIR/components/dashboard/forms/settings-form.tsx"
+create_file "$BASE_DIR/components/dashboard/tables/metrics-table.tsx"
+create_file "$BASE_DIR/components/dashboard/tables/reports-table.tsx"
+create_file "$BASE_DIR/components/dashboard/tables/transactions-table.tsx"
+create_file "$BASE_DIR/components/dashboard/header.tsx"
+create_file "$BASE_DIR/components/dashboard/nav.tsx"
+create_file "$BASE_DIR/components/dashboard/overview-metrics.tsx"
+create_file "$BASE_DIR/components/dashboard/recent-transactions.tsx"
+create_file "$BASE_DIR/components/dashboard/shell.tsx"
+create_file "$BASE_DIR/components/dashboard/user-nav.tsx"
 
-# Create types structure
-create_dir "$BASE_DIR/types/api"
-create_dir "$BASE_DIR/types/charts"
+# UI components
+create_file "$BASE_DIR/components/ui/avatar.tsx"
+create_file "$BASE_DIR/components/ui/button.tsx"
+create_file "$BASE_DIR/components/ui/card.tsx"
+create_file "$BASE_DIR/components/ui/dialog.tsx"
+create_file "$BASE_DIR/components/ui/dropdown-menu.tsx"
+create_file "$BASE_DIR/components/ui/form.tsx"
+create_file "$BASE_DIR/components/ui/input.tsx"
+create_file "$BASE_DIR/components/ui/select.tsx"
+create_file "$BASE_DIR/components/ui/table.tsx"
+create_file "$BASE_DIR/components/ui/tabs.tsx"
+create_file "$BASE_DIR/components/ui/toast.tsx"
+create_file "$BASE_DIR/components/ui/toaster.tsx"
+create_file "$BASE_DIR/components/ui/use-toast.ts"
 
-# Set permissions
-chmod -R 755 "$BASE_DIR/app"
-chmod -R 755 "$BASE_DIR/components"
-chmod -R 755 "$BASE_DIR/config"
-chmod -R 755 "$BASE_DIR/hooks"
-chmod -R 755 "$BASE_DIR/lib"
-chmod -R 755 "$BASE_DIR/styles"
-chmod -R 755 "$BASE_DIR/types"
+# Root components
+create_file "$BASE_DIR/components/auth-provider.tsx"
+create_file "$BASE_DIR/components/mode-toggle.tsx"
+create_file "$BASE_DIR/components/theme-provider.tsx"
 
-find "$BASE_DIR/app" -type f -exec chmod 644 {} \;
-find "$BASE_DIR/components" -type f -exec chmod 644 {} \;
-find "$BASE_DIR/config" -type f -exec chmod 644 {} \;
-find "$BASE_DIR/hooks" -type f -exec chmod 644 {} \;
-find "$BASE_DIR/lib" -type f -exec chmod 644 {} \;
-find "$BASE_DIR/styles" -type f -exec chmod 644 {} \;
-find "$BASE_DIR/types" -type f -exec chmod 644 {} \;
+# Config files
+create_file "$BASE_DIR/config/charts.ts"
+create_file "$BASE_DIR/config/dashboard.ts"
+create_file "$BASE_DIR/config/navigation.ts"
+create_file "$BASE_DIR/config/site.ts"
 
-echo -e "${GREEN}Additional directory structure created successfully!${NC}"
+# Hooks
+create_file "$BASE_DIR/hooks/charts/use-chart-data.ts"
+create_file "$BASE_DIR/hooks/charts/use-chart-dimensions.ts"
+create_file "$BASE_DIR/hooks/charts/use-chart-animation.ts"
+create_file "$BASE_DIR/hooks/charts/use-chart-zoom.ts"
+create_file "$BASE_DIR/hooks/charts/use-chart-export.ts"
+create_file "$BASE_DIR/hooks/use-debounce.ts"
+
+# API lib files
+create_file "$BASE_DIR/lib/api/charts/fetch-chart-data.ts"
+create_file "$BASE_DIR/lib/api/charts/process-chart-data.ts"
+create_file "$BASE_DIR/lib/api/charts/cache-chart-data.ts"
+create_file "$BASE_DIR/lib/api/metrics/metrics-api.ts"
+create_file "$BASE_DIR/lib/api/reports/reports-api.ts"
+
+# Chart lib files
+create_file "$BASE_DIR/lib/charts/adapters/recharts-adapter.ts"
+create_file "$BASE_DIR/lib/charts/adapters/d3-adapter.ts"
+create_file "$BASE_DIR/lib/charts/transformers/financial-data-transformer.ts"
+create_file "$BASE_DIR/lib/charts/transformers/metrics-transformer.ts"
+create_file "$BASE_DIR/lib/charts/transformers/time-series-transformer.ts"
+create_file "$BASE_DIR/lib/charts/constants/chart-colors.ts"
+create_file "$BASE_DIR/lib/charts/constants/chart-config.ts"
+create_file "$BASE_DIR/lib/charts/constants/chart-defaults.ts"
+
+# Root lib files
+create_file "$BASE_DIR/lib/auth.ts"
+create_file "$BASE_DIR/lib/db.ts"
+create_file "$BASE_DIR/lib/utils.ts"
+
+# Styles
+create_file "$BASE_DIR/styles/charts/area.css"
+create_file "$BASE_DIR/styles/charts/bar.css"
+create_file "$BASE_DIR/styles/charts/line.css"
+create_file "$BASE_DIR/styles/charts/pie.css"
+
+# Types
+create_file "$BASE_DIR/types/api/metrics.d.ts"
+create_file "$BASE_DIR/types/api/reports.d.ts"
+create_file "$BASE_DIR/types/charts/chart-data.d.ts"
+create_file "$BASE_DIR/types/charts/chart-options.d.ts"
+create_file "$BASE_DIR/types/charts/chart-config.d.ts"
+create_file "$BASE_DIR/types/auth.d.ts"
+create_file "$BASE_DIR/types/next-auth.d.ts"
+
+echo -e "${GREEN}Empty files created successfully!${NC}"
 echo "Structure is ready for development."
 
 exit 0
