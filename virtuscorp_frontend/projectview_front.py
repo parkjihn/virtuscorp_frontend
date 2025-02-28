@@ -11,12 +11,12 @@ def get_gitignore_patterns(directory):
                 line = line.strip()
                 if line and not line.startswith("#"):
                     ignore_patterns.add(line)
-    ignore_patterns.update(["package-lock.json", "README.md","node_modules"])  # Exclude package-lock.json and README.md explicitly
+    ignore_patterns.update(["package-lock.json", "README.md", "node_modules/"])  # Exclude package-lock.json, README.md, and node_modules explicitly
     return ignore_patterns
 
 def is_ignored(path, ignore_patterns, base_directory):
     rel_path = os.path.relpath(path, base_directory)
-    return any(rel_path.startswith(pattern) or rel_path == pattern for pattern in ignore_patterns)
+    return any(rel_path.startswith(pattern.rstrip('/') + os.sep) or rel_path == pattern.rstrip('/') for pattern in ignore_patterns)
 
 def combine_files_into_text(directory, output_file=None):
     print(f"Scanning directory: {directory}")
