@@ -3,7 +3,7 @@
 import { useState } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { Menu, X, LogOut } from "lucide-react"
+import { Menu, X, LogOut } from 'lucide-react'
 import { Button } from "@/components/ui/button"
 
 export default function Navbar() {
@@ -25,7 +25,7 @@ export default function Navbar() {
           <div className="flex">
             <div className="flex-shrink-0 flex items-center">
               <Link href="/" className="flex items-center">
-                <div className="w-8 h-8 rounded-full bg-blue-800 text-white flex items-center justify-center font-bold mr-2">
+                <div className="w-8 h-8 rounded-full bg-[#0c1442] text-white flex items-center justify-center font-bold mr-2">
                   <span>VC</span>
                 </div>
                 <span className="text-lg font-semibold">VirtusCorp</span>
@@ -34,7 +34,7 @@ export default function Navbar() {
             <div className="hidden sm:ml-6 sm:flex sm:space-x-8">
               <Link
                 href="/"
-                className="inline-flex items-center px-1 pt-1 border-b-2 border-blue-800 text-sm font-medium"
+                className="inline-flex items-center px-1 pt-1 border-b-2 border-[#0c1442] text-sm font-medium"
               >
                 Главная
               </Link>
@@ -80,7 +80,7 @@ export default function Navbar() {
           <div className="pt-2 pb-3 space-y-1">
             <Link
               href="/"
-              className="block pl-3 pr-4 py-2 border-l-4 border-blue-800 text-base font-medium text-blue-800 bg-blue-50"
+              className="block pl-3 pr-4 py-2 border-l-4 border-[#0c1442] text-base font-medium text-[#0c1442] bg-blue-50"
             >
               Главная
             </Link>
@@ -108,4 +108,3 @@ export default function Navbar() {
     </nav>
   )
 }
-
