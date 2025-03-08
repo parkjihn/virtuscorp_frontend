@@ -4,7 +4,7 @@ import type React from "react"
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
-import { Eye, EyeOff } from "lucide-react"
+import { Eye, EyeOff } from 'lucide-react'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -110,7 +110,7 @@ export default function LoginForm() {
               Забыли пароль?
             </Link>
           </div>
-          <Button type="submit" className="w-full bg-blue-800 hover:bg-blue-900" disabled={isLoading}>
+          <Button type="submit" disabled={isLoading} className="w-full">
             {isLoading ? "Вход..." : "Войти"}
           </Button>
         </form>
@@ -126,4 +126,3 @@ function VirtusLogo() {
     </div>
   )
 }
-
