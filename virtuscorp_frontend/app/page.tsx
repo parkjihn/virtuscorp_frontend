@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 const HomePage: React.FC = () => {
   return (
     <div className="flex flex-row min-h-screen bg-[#F5F7FA]">
-      <aside className="w-64 bg-[#1E293B] text-white shadow-md p-6 flex flex-col">
+      <aside className="w-64 bg-[#f0f0f6] text-white shadow-md p-6 flex flex-col">
         <h2 className="text-xl font-bold mb-4">Меню</h2>
         <nav>
           <ul className="space-y-2">
@@ -39,7 +39,7 @@ const HomePage: React.FC = () => {
       </aside>
 
       <div className="flex flex-col flex-1">
-        <header className="w-full py-4 bg-white shadow-md flex justify-between px-8">
+        <header className="w-full py-4 bg-[#f0f0f6] shadow-md flex justify-between px-8">
           <h1 className="text-2xl font-bold text-[#1E293B]">Virtus Corp</h1>
           <nav></nav>
         </header>
@@ -58,7 +58,7 @@ const HomePage: React.FC = () => {
           </Link>
         </main>
 
-        <footer className="w-full py-4 bg-white shadow-md text-center">
+        <footer className="w-full py-4 bg-[#f0f0f6] shadow-md text-center">
           <p className="text-gray-600">&copy; 2025 Virtus Corp. Все права защищены.</p>
         </footer>
       </div>
