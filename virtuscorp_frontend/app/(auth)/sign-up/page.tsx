@@ -1,7 +1,6 @@
 "use client"
 
 import type React from "react"
-
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
@@ -38,8 +37,7 @@ export default function SignUpPage() {
     <div className="min-h-screen flex flex-col bg-gray-50">
       <header className="w-full py-4 bg-white border-b border-gray-200">
         <div className="container mx-auto flex items-center justify-center">
-          <VirtusLogo />
-          <h1 className="text-2xl font-bold text-navy-900 ml-3">Virtus Corp</h1>
+          <h1 className="text-2xl font-bold text-navy-900">Virtus Corp</h1>
         </div>
       </header>
 
@@ -94,13 +92,13 @@ export default function SignUpPage() {
                     disabled={isLoading}
                   >
                     {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                    <span className="sr-only">{showPassword ? "Hide password" : "Show password"}</span>
+                    <span className="sr-only">{showPassword ? "Скрыть пароль" : "Показать пароль"}</span>
                   </Button>
                 </div>
               </div>
 
               <Button type="submit" className="w-full bg-[#0c1442]" disabled={isLoading}>
-                {isLoading ? "Creating Account..." : "Create Account"}
+                {isLoading ? "Создание учетной записи..." : "Создать учетную запись"}
               </Button>
 
               <div className="text-center mt-4">
@@ -115,14 +113,6 @@ export default function SignUpPage() {
       </div>
 
       <footer className="py-4 text-center text-sm text-gray-500">© 2025 Virtus Corp</footer>
-    </div>
-  )
-}
-
-function VirtusLogo() {
-  return (
-    <div className="flex items-center justify-center w-12 h-12 rounded-full bg-blue-800 text-white font-bold text-xl">
-      <span>VC</span>
     </div>
   )
 }

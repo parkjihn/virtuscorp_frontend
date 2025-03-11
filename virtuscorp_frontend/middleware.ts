@@ -1,35 +1,48 @@
 import { NextResponse } from "next/server"
 import type { NextRequest } from "next/server"
 
-// Функция для проверки, аутентифицирован ли пользователь
-// В будущем здесь можно реализовать проверку JWT токена
-function isAuthenticated(request: NextRequest) {
-  // Проверяем наличие cookie с токеном аутентификации
-  const authToken = request.cookies.get("auth-token")?.value
-  return !!authToken
-}
+// List of paths that don't require authentication
+const publicPaths = ["/login", "/sign-up", "/forgot-password"]
 
 export function middleware(request: NextRequest) {
-  // Получаем текущий путь
-  const path = request.nextUrl.pathname
+  const { pathname } = request.nextUrl
 
-  // Если пользователь не аутентифицирован и пытается получить доступ к защищенным маршрутам
-  if (!isAuthenticated(request) && path !== "/login") {
-    // Перенаправляем на страницу входа
-    return NextResponse.redirect(new URL("/login", request.url))
+  // Check if the path is in the public paths list
+  const isPublicPath = publicPaths.some((path) => pathname === path || pathname.startsWith(`${path}/`))
+
+  // Get the authentication token from cookies
+  const authToken = request.cookies.get("auth-token")?.value
+
+  // If the user is not authenticated and trying to access a protected route
+  if (!authToken && !isPublicPath) {
+    // Redirect to the login page
+    const url = request.nextUrl.clone()
+    url.pathname = "/login"
+    return NextResponse.redirect(url)
   }
 
-  // Если пользователь уже аутентифицирован и пытается получить доступ к странице входа
-  if (isAuthenticated(request) && path === "/login") {
-    // Перенаправляем на главную страницу
-    return NextResponse.redirect(new URL("/", request.url))
+  // If the user is authenticated and trying to access login or sign-up
+  if (authToken && isPublicPath) {
+    // Redirect to the home page
+    const url = request.nextUrl.clone()
+    url.pathname = "/"
+    return NextResponse.redirect(url)
   }
 
   return NextResponse.next()
 }
 
-// Указываем, для каких путей будет применяться middleware
+// Configure the middleware to run on specific paths
 export const config = {
-  matcher: ["/((?!api|_next/static|_next/image|favicon.ico).*)"],
+  matcher: [
+    /*
+     * Match all request paths except for the ones starting with:
+     * - _next/static (static files)
+     * - _next/image (image optimization files)
+     * - favicon.ico (favicon file)
+     * - public folder
+     */
+    "/((?!_next/static|_next/image|favicon.ico|public).*)",
+  ],
 }
 
