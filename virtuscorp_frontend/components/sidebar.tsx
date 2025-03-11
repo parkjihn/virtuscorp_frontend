@@ -4,7 +4,7 @@ import type React from "react"
 
 import { useState } from "react"
 import Link from "next/link"
-import { usePathname } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 import {
   LayoutDashboard,
   BarChart2,
@@ -22,6 +22,7 @@ import {
   FileDigit,
   ChevronDown,
   ChevronRight,
+  LogOut,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 
@@ -35,19 +36,29 @@ type MenuItem = {
 
 export default function Sidebar() {
   const pathname = usePathname()
+  const router = useRouter()
+
+  const handleLogout = () => {
+    document.cookie = "auth-token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT"
+    router.push("/login")
+    router.refresh()
+  }
 
   const [menuItems, setMenuItems] = useState<MenuItem[]>([
     {
       title: "Dashboard",
       path: "/dashboard",
       icon: <LayoutDashboard size={18} />,
-      expanded: true,
+      expanded: false,
+      submenu: [
+        {
+          title: "Metrics",
+          path: "/dashboard/metrics",
+          icon: <BarChart2 size={18} />,
+        }
+      ]
     },
-    {
-      title: "Metrics",
-      path: "/metrics",
-      icon: <BarChart2 size={18} />,
-    },
+  
     {
       title: "Analytics",
       icon: <LineChart size={18} />,
@@ -197,6 +208,18 @@ export default function Sidebar() {
           ))}
         </ul>
       </nav>
+
+      <div className="p-4 border-t border-gray-200">
+        <button
+          onClick={handleLogout}
+          className="flex items-center w-full p-2 rounded-md hover:bg-gray-200 transition-colors #0c1442 hover:text-gray-700"
+        >
+          <span className="mr-3">
+            <LogOut size={18} />
+          </span>
+          <span className="text-sm font-medium">Выйти</span>
+        </button>
+      </div>
     </aside>
   )
 }

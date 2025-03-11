@@ -3,7 +3,7 @@
 import { useState } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { Menu, X, LogOut, Bell, User } from "lucide-react"
+import { Menu, X, Bell, User } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
 export default function Navbar() {
@@ -37,27 +37,20 @@ export default function Navbar() {
           </div>
 
           <div className="flex items-center space-x-4">
-            <Button variant="ghost" size="icon" className="text-gray-500">
+            <Button variant="ghost" size="icon" className="#0c1442">
               <Bell size={20} />
             </Button>
             <div className="relative">
               <Button
                 variant="ghost"
-                className="flex items-center text-gray-500 hover:text-gray-700"
+                className="flex items-center #0c1442 hover:text-gray-700"
                 onClick={() => router.push("/profile")}
               >
                 <User className="h-5 w-5 mr-2" />
                 <span className="hidden sm:inline">Профиль</span>
               </Button>
             </div>
-            <Button
-              variant="ghost"
-              className="flex items-center text-gray-500 hover:text-gray-700"
-              onClick={handleLogout}
-            >
-              <LogOut className="h-5 w-5 sm:mr-2" />
-              <span className="hidden sm:inline">Выйти</span>
-            </Button>
+            
           </div>
         </div>
       </div>
