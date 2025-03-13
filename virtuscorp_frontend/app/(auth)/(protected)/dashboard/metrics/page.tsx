@@ -94,7 +94,7 @@ export default function MetricsPage() {
     metric: string
     label: string
     checked: boolean
-  }
+  }   
 
   const MetricItem = ({ section,label, checked }: MetricItemProps) => (
     <div className="flex justify-between items-center py-2">
