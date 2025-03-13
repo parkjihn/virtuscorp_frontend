@@ -52,7 +52,7 @@ export default function Sidebar() {
       expanded: false,
       submenu: [
         {
-          title: "Metrics",
+          title: "Метрики",
           path: "/dashboard/metrics",
           icon: <BarChart2 size={18} />,
         }
@@ -60,72 +60,72 @@ export default function Sidebar() {
     },
   
     {
-      title: "Analytics",
+      title: "Аналитика",
       icon: <LineChart size={18} />,
       expanded: false,
       submenu: [
         {
-          title: "Charts",
+          title: "Графики",
           path: "/analytics/charts",
           icon: <PieChart size={18} />,
         },
       ],
     },
     {
-      title: "Reports",
+      title: "Отчеты",
       icon: <FileText size={18} />,
       expanded: false,
       submenu: [
         {
-          title: "Export",
+          title: "Экспорт",
           path: "/reports/export",
           icon: <Download size={18} />,
         },
       ],
     },
     {
-      title: "Settings",
+      title: "Настройки",
       icon: <Settings size={18} />,
       expanded: false,
       submenu: [
         {
-          title: "App settings",
+          title: "Настройки приложения",
           path: "/settings/app",
           icon: <Sliders size={18} />,
         },
       ],
     },
     {
-      title: "Integrations",
+      title: "Интеграции",
       icon: <Boxes size={18} />,
       expanded: false,
       submenu: [
         {
-          title: "Data sources",
+          title: "Источники данных",
           path: "/integrations/data-sources",
           icon: <Database size={18} />,
         },
       ],
     },
     {
-      title: "Detailed Analytics",
+      title: "Детальная аналитика",
       icon: <BarChart size={18} />,
       expanded: false,
       submenu: [
         {
-          title: "Filters",
+          title: "Фильтры",
           path: "/detailed-analytics/filters",
           icon: <Filter size={18} />,
         },
       ],
     },
     {
-      title: "View Report",
+      title: "Просмотр отчетов",
       icon: <Eye size={18} />,
       expanded: false,
       submenu: [
         {
-          title: "Generated reports",
+          title: "Сформированные отчеты",
           path: "/view-report/generated",
           icon: <FileDigit size={18} />,
         },
