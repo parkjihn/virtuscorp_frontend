@@ -60,31 +60,31 @@ export default function MetricsPage() {
     categorization: true,
   })
 
-  const handleToggle = (section: string, metric: string): void => {
+  const handleToggle = (section: string): void => {
     switch (section) {
       case "sales":
-        setSalesMetrics({ ...salesMetrics, [metric]: !salesMetrics[metric] })
+        setSalesMetrics({ ...salesMetrics, })
         break
       case "assortment":
-        setAssortmentMetrics({ ...assortmentMetrics, [metric]: !assortmentMetrics[metric] })
+        setAssortmentMetrics({ ...assortmentMetrics})
         break
       case "pricing":
-        setPricingMetrics({ ...pricingMetrics, [metric]: !pricingMetrics[metric] })
+        setPricingMetrics({ ...pricingMetrics})
         break
       case "logistics":
-        setLogisticsMetrics({ ...logisticsMetrics, [metric]: !logisticsMetrics[metric] })
+        setLogisticsMetrics({ ...logisticsMetrics})
         break
       case "customer":
-        setCustomerMetrics({ ...customerMetrics, [metric]: !customerMetrics[metric] })
+        setCustomerMetrics({ ...customerMetrics})
         break
       case "ozon":
-        setOzonMetrics({ ...ozonMetrics, [metric]: !ozonMetrics[metric] })
+        setOzonMetrics({ ...ozonMetrics })
         break
       case "wildberries":
-        setWildberriesMetrics({ ...wildberriesMetrics, [metric]: !wildberriesMetrics[metric] })
+        setWildberriesMetrics({ ...wildberriesMetrics})
         break
       case "yandex":
-        setYandexMetrics({ ...yandexMetrics, [metric]: !yandexMetrics[metric] })
+        setYandexMetrics({ ...yandexMetrics,  })
         break
     }
   }
@@ -94,12 +94,12 @@ export default function MetricsPage() {
     metric: string
     label: string
     checked: boolean
-  }
+  }   
 
-  const MetricItem = ({ section, metric, label, checked }: MetricItemProps) => (
+  const MetricItem = ({ section,label, checked }: MetricItemProps) => (
     <div className="flex justify-between items-center py-2">
       <span>{label}</span>
-      <Switch checked={checked} onCheckedChange={() => handleToggle(section, metric)} />
+      <Switch checked={checked} onCheckedChange={() => handleToggle(section)} />
     </div>
   )
 
