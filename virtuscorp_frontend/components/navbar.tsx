@@ -32,7 +32,7 @@ export default function Navbar() {
               {isMenuOpen ? <X className="block h-6 w-6" /> : <Menu className="block h-6 w-6" />}
             </button>
             <div className="hidden sm:block">
-              <h1 className="text-xl font-semibold text-[#0c1442]">Панель управления</h1>
+             
             </div>
           </div>
 
