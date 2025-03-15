@@ -55,10 +55,10 @@ export default function Sidebar() {
           title: "Метрики",
           path: "/dashboard/metrics",
           icon: <BarChart2 size={18} />,
-        }
-      ]
+        },
+      ],
     },
-  
+
     {
       title: "Аналитика",
       icon: <LineChart size={18} />,
@@ -86,11 +86,11 @@ export default function Sidebar() {
     {
       title: "Настройки",
       icon: <Settings size={18} />,
-      expanded: false,
+      expanded: true,
       submenu: [
         {
           title: "Настройки приложения",
-          path: "/settings/app",
+          path: "/settings/app-settings",
           icon: <Sliders size={18} />,
         },
       ],
