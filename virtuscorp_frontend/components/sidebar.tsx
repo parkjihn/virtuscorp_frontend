@@ -86,7 +86,7 @@ export default function Sidebar() {
     {
       title: "Настройки",
       icon: <Settings size={18} />,
-      expanded: true,
+      expanded: false,
       submenu: [
         {
           title: "Настройки приложения",
