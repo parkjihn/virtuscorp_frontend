@@ -80,7 +80,7 @@ export default function GeneratedReportsPage() {
             </div>
           </Card>
 
-          {/* Report 2 */}
+        
           <Card className="p-6">
             <div className="flex flex-col md:flex-row justify-between">
               <div className="space-y-2">
