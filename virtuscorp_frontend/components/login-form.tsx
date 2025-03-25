@@ -26,7 +26,7 @@ const LoginForm = () => {
     setError("")
 
     try {
-      const response = await fetch("https://api.virtuscorp.site/auth/login", {
+      const response = await fetch("https://api.virtuscorp.site/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -36,6 +36,8 @@ const LoginForm = () => {
       })
 
       const data = await response.json()
+      document.cookie = `auth-token=${data.access_token}; path=/; max-age=3600`
+
 
       if (!response.ok) {
         throw new Error(data.detail || "Ошибка входа")
