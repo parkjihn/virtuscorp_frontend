@@ -150,7 +150,7 @@ export default function ChartsPage() {
                 </ResponsiveContainer>
               </CardContent>
             </Card>
-
+   
             <Card>
               <CardHeader className="pb-2">
                 <CardTitle className="text-lg">Конверсии</CardTitle>
