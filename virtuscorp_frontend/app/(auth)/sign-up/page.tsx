@@ -23,11 +23,31 @@ export default function SignUpPage() {
     setIsLoading(true)
 
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000))
+      const response = await fetch("https://api.virtuscorp.site/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          full_name: fullName,
+          email,
+          password
+        })
+      })
 
-      // Redirect to login page after successful registration
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.detail || "Ошибка регистрации")
+      }
+
       router.push("/login")
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        alert(err.message || "Ошибка регистрации")
+      } else {
+        alert("Неизвестная ошибка")
+      }
     } finally {
       setIsLoading(false)
     }
@@ -116,4 +136,3 @@ export default function SignUpPage() {
     </div>
   )
 }
-
