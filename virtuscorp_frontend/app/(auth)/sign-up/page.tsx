@@ -23,7 +23,7 @@ export default function SignUpPage() {
     setIsLoading(true)
 
     try {
-      const response = await fetch("https://api.virtuscorp.site/register", {
+      const response = await fetch("https://api.virtuscorp.site/auth/register", {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
