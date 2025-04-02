@@ -9,7 +9,6 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Eye, EyeOff } from "lucide-react"
-import type React from "react"
 
 const LoginForm = () => {
   const [email, setEmail] = useState("")
@@ -26,36 +25,32 @@ const LoginForm = () => {
     setError("")
 
     try {
-      const response = await fetch("https://api.virtuscorp.site/login", {
+      const response = await fetch("https://api.virtuscorp.site/auth/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        credentials: "include", // <-- важно: позволяет установить cookie из другого домена
+        credentials: "include", // важно: разрешает принимать Set-Cookie
         body: JSON.stringify({ email, password }),
       })
 
       const data = await response.json()
-      document.cookie = `auth-token=${data.access_token}; path=/; max-age=3600`
-
 
       if (!response.ok) {
         throw new Error(data.detail || "Ошибка входа")
       }
 
-      // При использовании secure cookie сервер сам установит токен — переходим на главную
       router.push("/")
       router.refresh()
     } catch (err: unknown) {
       if (err instanceof Error) {
         setError(err.message)
-        console.error(err)
       } else {
         setError("Произошла неизвестная ошибка.")
-        console.error("Unknown error:", err)
       }
+    } finally {
+      setIsLoading(false)
     }
-    
   }
 
   return (
