@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { useRouter } from "next/navigation"
+
 import Link from "next/link"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -14,7 +14,6 @@ const LoginForm = () => {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [error, setError] = useState("")
-  const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
   const [rememberMe, setRememberMe] = useState(false)
@@ -35,11 +34,10 @@ const LoginForm = () => {
       })
   
       if (response.ok) {
-       
-        router.push("/dashboard") 
-        router.refresh()
+        window.location.href = "/dashboard" 
         return
       }
+      
   
       const data = await response.json()
       throw new Error(data.detail || "Ошибка входа")
