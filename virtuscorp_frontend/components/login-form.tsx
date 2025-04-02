@@ -23,25 +23,26 @@ const LoginForm = () => {
     e.preventDefault()
     setIsLoading(true)
     setError("")
-
+  
     try {
       const response = await fetch("https://api.virtuscorp.site/auth/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        credentials: "include", // важно: разрешает принимать Set-Cookie
+        credentials: "include", 
         body: JSON.stringify({ email, password }),
       })
-
-      const data = await response.json()
-
-      if (!response.ok) {
-        throw new Error(data.detail || "Ошибка входа")
+  
+      if (response.ok) {
+       
+        router.push("/") 
+        router.refresh()
+        return
       }
-
-      router.push("/")
-      router.refresh()
+  
+      const data = await response.json()
+      throw new Error(data.detail || "Ошибка входа")
     } catch (err: unknown) {
       if (err instanceof Error) {
         setError(err.message)
@@ -52,6 +53,7 @@ const LoginForm = () => {
       setIsLoading(false)
     }
   }
+  
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
