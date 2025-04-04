@@ -39,7 +39,7 @@ const LoginForm = () => {
 
       if (response.ok) {
         // On successful login, redirect to dashboard
-        router.push("/dashboard")
+        router.push("/(auth)/(protected)/dashboard")
         return
       }
 
