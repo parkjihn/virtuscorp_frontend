@@ -13,6 +13,8 @@ export function middleware(request: NextRequest) {
   // Get the authentication token from cookies
   const authToken = request.cookies.get("auth-token")?.value
 
+  console.log("authToken in middleware:", authToken) // Debugging
+
   // If the user is not authenticated and trying to access a protected route
   if (!authToken && !isPublicPath) {
     // Redirect to the login page

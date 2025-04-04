@@ -1,5 +1,7 @@
 "use client"
 
+import type React from "react"
+
 import { useState } from "react"
 
 import Link from "next/link"
@@ -9,6 +11,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Eye, EyeOff } from "lucide-react"
+import { useRouter } from "next/navigation"
 
 const LoginForm = () => {
   const [email, setEmail] = useState("")
@@ -17,28 +20,29 @@ const LoginForm = () => {
   const [isLoading, setIsLoading] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
   const [rememberMe, setRememberMe] = useState(false)
+  const router = useRouter()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
     setError("")
-  
+
     try {
       const response = await fetch("https://api.virtuscorp.site/auth/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        credentials: "include", 
+        credentials: "include", // Important: This ensures cookies are sent with the request
         body: JSON.stringify({ email, password }),
       })
-  
+
       if (response.ok) {
-        window.location.href = "/dashboard" 
+        // On successful login, redirect to dashboard
+        router.push("/dashboard")
         return
       }
-      
-  
+
       const data = await response.json()
       throw new Error(data.detail || "Ошибка входа")
     } catch (err: unknown) {
@@ -51,7 +55,6 @@ const LoginForm = () => {
       setIsLoading(false)
     }
   }
-  
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
@@ -144,3 +147,4 @@ const LoginForm = () => {
 }
 
 export default LoginForm
+
