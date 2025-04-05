@@ -30,13 +30,18 @@ const LoginForm = () => {
         headers: {
           "Content-Type": "application/json",
         },
-        credentials: "include", 
+        credentials: "include",
         body: JSON.stringify({ email, password }),
       })
   
       if (response.ok) {
-       
-        router.push("/dashboard") 
+        // Попробуем получить токен из тела ответа (на случай, если backend пока не ставит cookie)
+        const data = await response.json()
+        if (data.access_token) {
+          document.cookie = `auth-token=${data.access_token}; path=/; secure; samesite=strict`
+        }
+  
+        router.push("/dashboard")
         router.refresh()
         return
       }
