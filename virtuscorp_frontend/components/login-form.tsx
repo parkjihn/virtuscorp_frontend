@@ -1,5 +1,7 @@
 "use client"
 
+import type React from "react"
+
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
@@ -23,7 +25,7 @@ const LoginForm = () => {
     e.preventDefault()
     setIsLoading(true)
     setError("")
-  
+
     try {
       const response = await fetch("https://api.virtuscorp.site/auth/login", {
         method: "POST",
@@ -33,19 +35,18 @@ const LoginForm = () => {
         credentials: "include",
         body: JSON.stringify({ email, password }),
       })
-  
+
       if (response.ok) {
-        // Попробуем получить токен из тела ответа (на случай, если backend пока не ставит cookie)
         const data = await response.json()
         if (data.access_token) {
           document.cookie = `auth-token=${data.access_token}; path=/; secure; samesite=strict`
         }
-  
+
         router.push("/dashboard")
         router.refresh()
         return
       }
-  
+
       const data = await response.json()
       throw new Error(data.detail || "Ошибка входа")
     } catch (err: unknown) {
@@ -58,7 +59,6 @@ const LoginForm = () => {
       setIsLoading(false)
     }
   }
-  
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
@@ -69,12 +69,12 @@ const LoginForm = () => {
       </header>
 
       <div className="flex-1 flex items-center justify-center p-4">
-        <Card className="w-full max-w-md shadow-lg">
+        <Card className="w-full max-w-lg shadow-lg">
           <CardHeader className="space-y-1">
             <CardTitle className="text-2xl font-bold text-center">Вход в систему</CardTitle>
             <CardDescription className="text-center">Войдите для доступа к вашему аккаунту</CardDescription>
           </CardHeader>
-          <CardContent>
+          <CardContent className="p-6">
             {error && <div className="mb-4 p-3 bg-red-50 text-red-800 rounded-md text-sm">{error}</div>}
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
@@ -126,9 +126,6 @@ const LoginForm = () => {
                     Запомнить меня
                   </Label>
                 </div>
-                <Link href="/forgot-password" className="text-sm text-blue-800 hover:underline">
-                  Забыли пароль?
-                </Link>
               </div>
               <Button type="submit" disabled={isLoading} className="w-full bg-[#0c1442] text-white">
                 {isLoading ? "Вход..." : "Войти"}
@@ -151,3 +148,4 @@ const LoginForm = () => {
 }
 
 export default LoginForm
+

@@ -106,6 +106,7 @@ export default function SignUpPage() {
                 <Input
                   id="email"
                   name="email"
+                  placeholder="youremail@example.com"
                   type="email"
                   value={form.email}
                   onChange={handleChange}
@@ -120,6 +121,7 @@ export default function SignUpPage() {
                   <Input
                     id="password"
                     name="password"
+                    placeholder="****************"
                     type={showPassword ? "text" : "password"}
                     value={form.password}
                     onChange={handleChange}
@@ -152,6 +154,7 @@ export default function SignUpPage() {
                   <Input
                     id="confirmPassword"
                     name="confirmPassword"
+                    placeholder="****************"
                     type={showPassword ? "text" : "password"}
                     value={form.confirmPassword}
                     onChange={handleChange}
