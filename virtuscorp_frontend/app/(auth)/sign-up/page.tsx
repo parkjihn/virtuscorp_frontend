@@ -43,7 +43,14 @@ export default function SignUpPage() {
         throw new Error(data.detail || "Registration failed")
       }
 
-      router.push("/login")
+    
+      if (data.access_token) {
+        document.cookie = `auth-token=${data.access_token}; path=/; secure; samesite=strict`
+      }
+
+     
+      router.push("/dashboard")
+      router.refresh()
     } catch (err: unknown) {
       if (err instanceof Error) {
         setError(err.message)
