@@ -1,75 +1,59 @@
-"use client";
+"use client"
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import Link from "next/link";
-import { Eye, EyeOff } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useState } from "react"
+import { useRouter } from "next/navigation"
+import Link from "next/link"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 
 export default function SignUpPage() {
-  const router = useRouter();
-  const [showPassword, setShowPassword] = useState(false);
-  const [form, setForm] = useState({
-    fullName: "",
-    email: "",
-    password: "",
-    confirmPassword: "",
-  });
-  const [error, setError] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setForm((prev) => ({ ...prev, [name]: value }));
-  };
+  const router = useRouter()
+  const [fullName, setFullName] = useState("")
+  const [email, setEmail] = useState("")
+  const [password, setPassword] = useState("")
+  const [confirmPassword, setConfirmPassword] = useState("")
+  const [error, setError] = useState("")
+  const [isLoading, setIsLoading] = useState(false)
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError("");
-
-    if (form.password !== form.confirmPassword) {
-      setError("Пароли не совпадают");
-      return;
-    }
-
-    setIsLoading(true);
+    e.preventDefault()
+    setIsLoading(true)
+    setError("")
 
     try {
-      const response = await fetch(
-        "https://api.virtuscorp.site/auth/register",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            full_name: form.fullName,
-            email: form.email,
-            password: form.password,
-          }),
-        }
-      );
+      const response = await fetch("https://api.virtuscorp.site/auth/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify({
+          full_name: fullName,
+          email,
+          password,
+          confirm_password: confirmPassword,
+        }),
+      })
 
-      const data = await response.json();
+      const data = await response.json()
 
       if (!response.ok) {
-        setError(data.detail || "Ошибка регистрации");
-      } else {
-        router.push("/login");
+        throw new Error(data.detail || "Registration failed")
       }
+
+      router.push("/login")
     } catch (err: unknown) {
       if (err instanceof Error) {
-        setError(err.message || "Ошибка запроса");
+        setError(err.message)
       } else {
-        setError("Неизвестная ошибка");
+        setError("Произошла неизвестная ошибка.")
       }
     } finally {
-      setIsLoading(false);
+      setIsLoading(false)
     }
-  };
+  }
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
@@ -80,127 +64,73 @@ export default function SignUpPage() {
       </header>
 
       <div className="flex-1 flex items-center justify-center p-4">
-        <Card className="w-full max-w-md shadow-lg">
+        <Card className="w-full max-w-lg shadow-lg">
           <CardHeader className="space-y-1">
-            <CardTitle className="text-2xl font-bold text-center">
-              Создать учетную запись
-            </CardTitle>
+            <CardTitle className="text-2xl font-bold text-center">Регистрация</CardTitle>
+            <CardDescription className="text-center">Создайте новый аккаунт</CardDescription>
           </CardHeader>
-          <CardContent>
+          <CardContent className="p-6">
+            {error && <div className="mb-4 p-3 bg-red-50 text-red-800 rounded-md text-sm">{error}</div>}
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="fullName">ФИО</Label>
+                <Label htmlFor="full-name">Ваше имя</Label>
                 <Input
-                  id="fullName"
-                  name="fullName"
+                  id="full-name"
                   type="text"
-                  value={form.fullName}
-                  onChange={handleChange}
+                  placeholder="Иван Иванов"
+                  value={fullName}
+                  onChange={(e) => setFullName(e.target.value)}
                   required
                   disabled={isLoading}
                 />
               </div>
-
               <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>
                 <Input
                   id="email"
-                  name="email"
-                  placeholder="youremail@example.com"
                   type="email"
-                  value={form.email}
-                  onChange={handleChange}
+                  placeholder="you@example.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                   required
                   disabled={isLoading}
                 />
               </div>
-
               <div className="space-y-2">
-                <Label htmlFor="password">Создать пароль</Label>
-                <div className="relative">
-                  <Input
-                    id="password"
-                    name="password"
-                    placeholder="****************"
-                    type={showPassword ? "text" : "password"}
-                    value={form.password}
-                    onChange={handleChange}
-                    required
-                    disabled={isLoading}
-                  />
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon"
-                    className="absolute right-0 top-0 h-full px-3"
-                    onClick={() => setShowPassword(!showPassword)}
-                    disabled={isLoading}
-                  >
-                    {showPassword ? (
-                      <EyeOff className="h-4 w-4" />
-                    ) : (
-                      <Eye className="h-4 w-4" />
-                    )}
-                    <span className="sr-only">
-                      {showPassword ? "Скрыть пароль" : "Показать пароль"}
-                    </span>
-                  </Button>
-                </div>
+                <Label htmlFor="password">Пароль</Label>
+                <Input
+                  id="password"
+                  type="password"
+                  placeholder="********"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  disabled={isLoading}
+                />
               </div>
-
               <div className="space-y-2">
-                <Label htmlFor="confirmPassword">Подтвердить пароль</Label>
-                <div className="relative">
-                  <Input
-                    id="confirmPassword"
-                    name="confirmPassword"
-                    placeholder="****************"
-                    type={showPassword ? "text" : "password"}
-                    value={form.confirmPassword}
-                    onChange={handleChange}
-                    required
-                    disabled={isLoading}
-                  />
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon"
-                    className="absolute right-0 top-0 h-full px-3"
-                    onClick={() => setShowPassword(!showPassword)}
-                    disabled={isLoading}
-                  >
-                    {showPassword ? (
-                      <EyeOff className="h-4 w-4" />
-                    ) : (
-                      <Eye className="h-4 w-4" />
-                    )}
-                    <span className="sr-only">
-                      {showPassword ? "Скрыть пароль" : "Показать пароль"}
-                    </span>
-                  </Button>
-                </div>
+                <Label htmlFor="confirm-password">Подтверждение пароля</Label>
+                <Input
+                  id="confirm-password"
+                  type="password"
+                  placeholder="********"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  required
+                  disabled={isLoading}
+                />
               </div>
-
-              {error && <p className="text-sm text-red-500">{error}</p>}
-
               <Button
                 type="submit"
-                className="w-full bg-[#0c1442]"
                 disabled={isLoading}
+                className="w-full bg-[#0c1442] text-white"
               >
-                {isLoading
-                  ? "Создание учетной записи..."
-                  : "Создать учетную запись"}
+                {isLoading ? "Создание..." : "Зарегистрироваться"}
               </Button>
 
               <div className="text-center mt-4">
-                <span className="text-sm text-gray-600">
-                  Уже есть учетная запись?{" "}
-                </span>
-                <Link
-                  href="/login"
-                  className="text-sm text-blue-800 hover:underline"
-                >
+                <span className="text-sm text-gray-600">Уже есть аккаунт? </span>
+                <Link href="/login" className="text-sm text-blue-800 hover:underline">
                   Войти
                 </Link>
               </div>
@@ -209,9 +139,7 @@ export default function SignUpPage() {
         </Card>
       </div>
 
-      <footer className="py-4 text-center text-sm text-gray-500">
-        © 2025 Virtus Corp
-      </footer>
+      <footer className="py-4 text-center text-sm text-gray-500">© 2025 Virtus Corp</footer>
     </div>
-  );
+  )
 }
