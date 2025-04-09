@@ -20,36 +20,65 @@ const LoginForm = () => {
   const [isLoading, setIsLoading] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
   const [rememberMe, setRememberMe] = useState(false)
+  const [debugInfo, setDebugInfo] = useState<string>("")
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
     setError("")
+    setDebugInfo("")
 
     try {
+      // Для отладки: проверяем текущие куки перед запросом
+      const currentCookies = document.cookie
+      setDebugInfo((prev) => prev + `Current cookies before login: ${currentCookies}\n`)
+
       const response = await fetch("https://api.virtuscorp.site/auth/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        credentials: "include", // Important: This ensures cookies are sent with the request
+        credentials: "include", // Важно для работы с куками
         body: JSON.stringify({ email, password }),
       })
 
+      setDebugInfo((prev) => prev + `Response status: ${response.status}\n`)
+
+      const data = await response.json()
+      setDebugInfo((prev) => prev + `Response data: ${JSON.stringify(data)}\n`)
+
       if (response.ok) {
-        // After successful login, redirect to dashboard
-        router.push("/dashboard")
-        router.refresh() // Force a refresh to update the auth state
+        // Сохраняем токен в localStorage для дополнительной надежности
+        if (data.access_token) {
+          localStorage.setItem("auth-token", data.access_token)
+          setDebugInfo((prev) => prev + `Token saved to localStorage\n`)
+
+          // Также устанавливаем куки вручную на клиенте
+          document.cookie = `auth-token=${data.access_token}; path=/;`
+          setDebugInfo((prev) => prev + `Token saved to cookie\n`)
+        }
+
+        // Проверяем куки после установки
+        const afterCookies = document.cookie
+        setDebugInfo((prev) => prev + `Cookies after login: ${afterCookies}\n`)
+
+        // Небольшая задержка перед редиректом
+        setTimeout(() => {
+          router.push("/dashboard")
+          router.refresh()
+        }, 1000)
+
         return
       }
 
-      const data = await response.json()
       throw new Error(data.detail || "Ошибка входа")
     } catch (err: unknown) {
       if (err instanceof Error) {
         setError(err.message)
+        setDebugInfo((prev) => prev + `Error: ${err.message}\n`)
       } else {
         setError("Произошла неизвестная ошибка.")
+        setDebugInfo((prev) => prev + `Unknown error\n`)
       }
     } finally {
       setIsLoading(false)
@@ -134,6 +163,14 @@ const LoginForm = () => {
                 </Link>
               </div>
             </form>
+
+            {/* Отладочная информация (можно удалить в продакшене) */}
+            {debugInfo && (
+              <div className="mt-4 p-3 bg-gray-100 rounded-md text-xs font-mono whitespace-pre-wrap">
+                <p className="font-bold mb-2">Отладочная информация:</p>
+                {debugInfo}
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>
