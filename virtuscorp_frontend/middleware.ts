@@ -25,7 +25,7 @@ export function middleware(request: NextRequest) {
   if (authToken && isPublicPath) {
     // Redirect to the home page
     const url = request.nextUrl.clone()
-    url.pathname = "/"
+    url.pathname = "/dashboard"
     return NextResponse.redirect(url)
   }
 
@@ -45,4 +45,3 @@ export const config = {
     "/((?!_next/static|_next/image|favicon.ico|public).*)",
   ],
 }
-
