@@ -11,9 +11,9 @@ export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
 
   const handleLogout = () => {
-    // Удаляем cookie аутентификации
+   
     document.cookie = "auth-token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT"
-    // Перенаправляем на страницу входа
+   
     router.push("/login")
     router.refresh()
   }
