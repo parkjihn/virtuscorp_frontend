@@ -29,14 +29,14 @@ export default function SignUpPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
-
+  
     if (form.password !== form.confirmPassword) {
       setError("Пароли не совпадают");
       return;
     }
-
+  
     setIsLoading(true);
-
+  
     try {
       const response = await fetch(
         "https://api.virtuscorp.site/auth/register",
@@ -49,12 +49,13 @@ export default function SignUpPage() {
             full_name: form.fullName,
             email: form.email,
             password: form.password,
+            confirm_password: form.confirmPassword, 
           }),
         }
       );
-
+  
       const data = await response.json();
-
+  
       if (!response.ok) {
         setError(data.detail || "Ошибка регистрации");
       } else {
@@ -70,6 +71,7 @@ export default function SignUpPage() {
       setIsLoading(false);
     }
   };
+  
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
