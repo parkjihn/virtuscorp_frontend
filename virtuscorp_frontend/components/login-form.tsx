@@ -32,18 +32,14 @@ const LoginForm = () => {
         headers: {
           "Content-Type": "application/json",
         },
-        credentials: "include",
+        credentials: "include", // Important: This ensures cookies are sent with the request
         body: JSON.stringify({ email, password }),
       })
 
       if (response.ok) {
-        const data = await response.json()
-        if (data.access_token) {
-          document.cookie = `auth-token=${data.access_token}; path=/; secure; samesite=strict`
-        }
-
+        // After successful login, redirect to dashboard
         router.push("/dashboard")
-        router.refresh()
+        router.refresh() // Force a refresh to update the auth state
         return
       }
 
@@ -148,4 +144,3 @@ const LoginForm = () => {
 }
 
 export default LoginForm
-
