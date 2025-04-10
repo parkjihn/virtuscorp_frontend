@@ -10,13 +10,19 @@ export function middleware(request: NextRequest) {
   // Check if the path is in the public paths list
   const isPublicPath = publicPaths.some((path) => pathname === path || pathname.startsWith(`${path}/`))
 
-  // Get the authentication token from cookies or localStorage (via header)
-  const authToken = request.cookies.get("auth-token")?.value || request.headers.get("x-auth-token")
+  // Get the authentication token from cookies
+  const authToken = request.cookies.get("auth-token")?.value
 
-  console.log(`Middleware: Path=${pathname}, isPublicPath=${isPublicPath}, hasAuthToken=${!!authToken}`)
+  // If no token in cookies, try to get from headers (for API requests)
+  const headerToken = request.headers.get("x-auth-token")
+
+  // Use either cookie token or header token
+  const token = authToken || headerToken
+
+  console.log(`Middleware: Path=${pathname}, isPublicPath=${isPublicPath}, hasAuthToken=${!!token}`)
 
   // If the user is not authenticated and trying to access a protected route
-  if (!authToken && !isPublicPath) {
+  if (!token && !isPublicPath) {
     console.log("Middleware: Redirecting to login")
     // Redirect to the login page
     const url = request.nextUrl.clone()
@@ -25,7 +31,7 @@ export function middleware(request: NextRequest) {
   }
 
   // If the user is authenticated and trying to access login or sign-up
-  if (authToken && isPublicPath) {
+  if (token && isPublicPath) {
     console.log("Middleware: Redirecting to dashboard")
     // Redirect to the dashboard
     const url = request.nextUrl.clone()
@@ -33,12 +39,12 @@ export function middleware(request: NextRequest) {
     return NextResponse.redirect(url)
   }
 
-  // Add the token from localStorage to the request headers if it exists
+  // Add the token from cookies to the request headers if it exists
   const response = NextResponse.next()
 
   // Pass the token to the backend in a header for verification
-  if (authToken) {
-    response.headers.set("x-auth-token", authToken)
+  if (token) {
+    response.headers.set("x-auth-token", token)
   }
 
   return response

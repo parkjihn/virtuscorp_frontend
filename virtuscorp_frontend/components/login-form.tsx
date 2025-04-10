@@ -44,23 +44,31 @@ const LoginForm = () => {
 
       setDebugInfo((prev) => prev + `Response status: ${response.status}\n`)
 
+      if (!response.ok) {
+        throw new Error(`Error: ${response.status}`)
+      }
+
       const data = await response.json()
       setDebugInfo((prev) => prev + `Response data: ${JSON.stringify(data)}\n`)
 
-      if (response.ok) {
-        // Сохраняем токен в localStorage для дополнительной надежности
-        if (data.access_token) {
-          localStorage.setItem("auth-token", data.access_token)
-          setDebugInfo((prev) => prev + `Token saved to localStorage\n`)
+      if (data.access_token) {
+        // Сохраняем токен в localStorage
+        localStorage.setItem("auth-token", data.access_token)
+        setDebugInfo((prev) => prev + `Token saved to localStorage\n`)
 
-          // Также устанавливаем куки вручную на клиенте
-          document.cookie = `auth-token=${data.access_token}; path=/;`
-          setDebugInfo((prev) => prev + `Token saved to cookie\n`)
-        }
+        // Также устанавливаем куки вручную на клиенте для дополнительной надежности
+        document.cookie = `auth-token=${data.access_token}; path=/; SameSite=Lax;`
+        setDebugInfo((prev) => prev + `Token saved to cookie\n`)
 
         // Проверяем куки после установки
         const afterCookies = document.cookie
         setDebugInfo((prev) => prev + `Cookies after login: ${afterCookies}\n`)
+
+        // Добавляем токен в заголовки для всех последующих запросов
+        if (typeof window !== "undefined") {
+          // Устанавливаем токен в localStorage для использования в middleware
+          window.localStorage.setItem("auth-token", data.access_token)
+        }
 
         // Небольшая задержка перед редиректом
         setTimeout(() => {
@@ -69,9 +77,9 @@ const LoginForm = () => {
         }, 1000)
 
         return
+      } else {
+        throw new Error("No access token received")
       }
-
-      throw new Error(data.detail || "Ошибка входа")
     } catch (err: unknown) {
       if (err instanceof Error) {
         setError(err.message)
