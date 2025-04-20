@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useRef } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import axios from "axios"
@@ -9,6 +9,8 @@ export default function DataSourcesPage() {
   const [campaignId, setCampaignId] = useState("")
   const [businessId, setBusinessId] = useState("")
   const [token, setToken] = useState("")
+  const [uploadMessage, setUploadMessage] = useState("")
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   const handleSave = async () => {
     try {
@@ -42,6 +44,25 @@ export default function DataSourcesPage() {
     }
   }
 
+  const handleFileUpload = async () => {
+    const file = fileInputRef.current?.files?.[0]
+    if (!file) return
+
+    const formData = new FormData()
+    formData.append("file", file)
+
+    try {
+      await axios.post("/api/upload-metrics", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      })
+      setUploadMessage("Файл успешно загружен!")
+    } catch (err) {
+      console.error("Ошибка загрузки файла:", err)
+      setUploadMessage("Ошибка при загрузке")
+    }
+    
+  }
+
   return (
     <div className="container mx-auto py-8 px-4">
       <h1 className="text-2xl font-bold text-[#0c1442] mb-2">Источники данных</h1>
@@ -50,40 +71,24 @@ export default function DataSourcesPage() {
       <div className="bg-white rounded-lg border p-6">
         <div className="mb-8">
           <h2 className="text-lg font-semibold mb-4">Подключение к Яндекс Маркет</h2>
-
-          <div className="bg-gray-50 rounded-lg p-6 mb-6">
-            <div className="space-y-4">
-              <Input
-                type="text"
-                placeholder="ID кампании (campaign_id)"
-                name="campaign_id"
-                value={campaignId}
-                onChange={(e) => setCampaignId(e.target.value)}
-              />
-              <Input
-                type="text"
-                placeholder="ID кабинета (business_id)"
-                name="business_id"
-                value={businessId}
-                onChange={(e) => setBusinessId(e.target.value)}
-              />
-              <Input
-                type="password"
-                placeholder="Авторизационный токен"
-                name="token"
-                value={token}
-                onChange={(e) => setToken(e.target.value)}
-              />
-
-              <div className="flex space-x-4">
-                <Button className="bg-[#0c1442]" onClick={handleSave}>Сохранить</Button>
-                <Button variant="outline" className="border-[#0c1442] text-[#0c1442]" onClick={handleVerify}>
-                  Проверить
-                </Button>
-              </div>
+          <div className="space-y-4">
+            <Input type="text" placeholder="ID кампании" value={campaignId} onChange={(e) => setCampaignId(e.target.value)} />
+            <Input type="text" placeholder="ID кабинета" value={businessId} onChange={(e) => setBusinessId(e.target.value)} />
+            <Input type="password" placeholder="Токен" value={token} onChange={(e) => setToken(e.target.value)} />
+            <div className="flex space-x-4">
+              <Button className="bg-[#0c1442]" onClick={handleSave}>Сохранить</Button>
+              <Button variant="outline" className="border-[#0c1442] text-[#0c1442]" onClick={handleVerify}>Проверить</Button>
             </div>
           </div>
+        </div>
 
+        <hr className="my-8" />
+
+        <div>
+          <h2 className="text-lg font-semibold mb-4">Локальная загрузка Excel / CSV</h2>
+          <input type="file" ref={fileInputRef} accept=".csv,.xlsx" />
+          <Button className="mt-2 bg-[#0c1442]" onClick={handleFileUpload}>Загрузить</Button>
+          {uploadMessage && <p className="mt-2 text-sm text-gray-600">{uploadMessage}</p>}
         </div>
       </div>
     </div>

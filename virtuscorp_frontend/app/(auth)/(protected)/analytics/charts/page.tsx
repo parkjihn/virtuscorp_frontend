@@ -1,6 +1,7 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
+import axios from "axios"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import {
@@ -16,64 +17,71 @@ import {
   ResponsiveContainer,
 } from "recharts"
 
-// Sample data for the charts
-const priceChangesData = [
-  { name: "Jan", product1: 400, product2: 300 },
-  { name: "Feb", product1: 500, product2: 250 },
-  { name: "Mar", product1: 450, product2: 300 },
-  { name: "Apr", product1: 470, product2: 270 },
-  { name: "May", product1: 400, product2: 230 },
-  { name: "Jun", product1: 350, product2: 220 },
-  { name: "Jul", product1: 450, product2: 200 },
-  { name: "Aug", product1: 400, product2: 180 },
-  { name: "Sep", product1: 380, product2: 170 },
-  { name: "Oct", product1: 410, product2: 150 },
-  { name: "Nov", product1: 380, product2: 140 },
-  { name: "Dec", product1: 350, product2: 130 },
-]
-
-const conversionsData = [
-  { name: "Jan", conversions: 400, visits: 300 },
-  { name: "Feb", conversions: 380, visits: 340 },
-  { name: "Mar", conversions: 350, visits: 330 },
-  { name: "Apr", conversions: 340, visits: 350 },
-  { name: "May", conversions: 320, visits: 320 },
-  { name: "Jun", conversions: 300, visits: 360 },
-  { name: "Jul", conversions: 280, visits: 340 },
-  { name: "Aug", conversions: 260, visits: 380 },
-  { name: "Sep", conversions: 250, visits: 350 },
-  { name: "Oct", conversions: 240, visits: 400 },
-  { name: "Nov", conversions: 260, visits: 390 },
-  { name: "Dec", conversions: 280, visits: 380 },
-]
-
-const categorySalesData = [
-  { name: "Электроника", current: 400, previous: 300 },
-  { name: "Одежда", current: 300, previous: 250 },
-  { name: "Дом", current: 200, previous: 220 },
-  { name: "Красота", current: 380, previous: 230 },
-  { name: "Спорт", current: 350, previous: 280 },
-  { name: "Книги", current: 500, previous: 350 },
-  { name: "Игрушки", current: 340, previous: 240 },
-  { name: "Прочее", current: 280, previous: 300 },
-]
-
-const skuSalesData = [
-  { name: "SKU-001", current: 800, previous: 200 },
-  { name: "SKU-002", current: 650, previous: 300 },
-  { name: "SKU-003", current: 400, previous: 250 },
-  { name: "SKU-004", current: 700, previous: 150 },
-  { name: "SKU-005", current: 550, previous: 200 },
-  { name: "SKU-006", current: 200, previous: 150 },
-]
+interface ChartRow {
+  name: string
+  product1: number
+  product2: number
+  conversions: number
+  visits: number
+}
 
 export default function ChartsPage() {
   const [timeRange, setTimeRange] = useState("month")
+  const [data, setData] = useState<ChartRow[]>([])
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const res = await axios.get("/api/uploaded-data")
+        const raw = res.data.data || []
+
+        const parsed: ChartRow[] = raw.map((row: Record<string, unknown>) => {
+          return {
+            name: typeof row["Month"] === "string"
+              ? row["Month"]
+              : typeof row["name"] === "string"
+              ? row["name"]
+              : "N/A",
+
+            product1: typeof row["Product1"] === "number"
+              ? row["Product1"]
+              : typeof row["product1"] === "number"
+              ? row["product1"]
+              : 0,
+
+            product2: typeof row["Product2"] === "number"
+              ? row["Product2"]
+              : typeof row["product2"] === "number"
+              ? row["product2"]
+              : 0,
+
+            conversions: typeof row["Conversions"] === "number"
+              ? row["Conversions"]
+              : typeof row["conversions"] === "number"
+              ? row["conversions"]
+              : 0,
+
+            visits: typeof row["Visits"] === "number"
+              ? row["Visits"]
+              : typeof row["visits"] === "number"
+              ? row["visits"]
+              : 0,
+          }
+        })
+
+        setData(parsed)
+      } catch (error) {
+        console.error("Ошибка загрузки данных:", error)
+      }
+    }
+
+    fetchData()
+  }, [])
 
   return (
     <div className="container mx-auto py-8 px-4">
       <h1 className="text-2xl font-bold text-[#0c1442] mb-2">Графики</h1>
-      <p className="text-gray-600 mb-6">Визуализация данных по продажам и конверсиям</p>
+      <p className="text-gray-600 mb-6">Визуализация данных из загруженного файла</p>
 
       <div className="mb-6">
         <div className="flex items-center space-x-4">
@@ -117,35 +125,13 @@ export default function ChartsPage() {
               </CardHeader>
               <CardContent>
                 <ResponsiveContainer width="100%" height={300}>
-                  <LineChart
-                    data={priceChangesData}
-                    margin={{
-                      top: 5,
-                      right: 30,
-                      left: 20,
-                      bottom: 5,
-                    }}
-                  >
+                  <LineChart data={data}>
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="name" />
                     <YAxis />
                     <Tooltip />
-                    <Line
-                      type="monotone"
-                      dataKey="product1"
-                      stroke="#0c1442"
-                      strokeWidth={3}
-                      dot={{ r: 0 }}
-                      activeDot={{ r: 8 }}
-                    />
-                    <Line
-                      type="monotone"
-                      dataKey="product2"
-                      stroke="#9ca3af"
-                      strokeWidth={2}
-                      dot={{ r: 0 }}
-                      activeDot={{ r: 6 }}
-                    />
+                    <Line type="monotone" dataKey="product1" stroke="#0c1442" strokeWidth={2} />
+                    <Line type="monotone" dataKey="product2" stroke="#9ca3af" strokeWidth={2} />
                   </LineChart>
                 </ResponsiveContainer>
               </CardContent>
@@ -163,35 +149,13 @@ export default function ChartsPage() {
               </CardHeader>
               <CardContent>
                 <ResponsiveContainer width="100%" height={300}>
-                  <LineChart
-                    data={conversionsData}
-                    margin={{
-                      top: 5,
-                      right: 30,
-                      left: 20,
-                      bottom: 5,
-                    }}
-                  >
+                  <LineChart data={data}>
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="name" />
                     <YAxis />
                     <Tooltip />
-                    <Line
-                      type="monotone"
-                      dataKey="conversions"
-                      stroke="#0c1442"
-                      strokeWidth={3}
-                      dot={{ r: 0 }}
-                      activeDot={{ r: 8 }}
-                    />
-                    <Line
-                      type="monotone"
-                      dataKey="visits"
-                      stroke="#9ca3af"
-                      strokeWidth={2}
-                      dot={{ r: 0 }}
-                      activeDot={{ r: 6 }}
-                    />
+                    <Line type="monotone" dataKey="conversions" stroke="#0c1442" strokeWidth={2} />
+                    <Line type="monotone" dataKey="visits" stroke="#9ca3af" strokeWidth={2} />
                   </LineChart>
                 </ResponsiveContainer>
               </CardContent>
@@ -203,32 +167,19 @@ export default function ChartsPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <Card>
               <CardHeader className="pb-2">
-                <CardTitle className="text-lg">Сравнение продаж по категориям</CardTitle>
-                <p className="text-xs text-gray-500">
-                  {timeRange === "week" && "За неделю"}
-                  {timeRange === "month" && "За месяц"}
-                  {timeRange === "quarter" && "За квартал"}
-                  {timeRange === "year" && "За год"}
-                </p>
+                <CardTitle className="text-lg">Сравнение продаж</CardTitle>
+                <p className="text-xs text-gray-500">{timeRange === "month" ? "За месяц" : ""}</p>
               </CardHeader>
               <CardContent>
                 <ResponsiveContainer width="100%" height={300}>
-                  <BarChart
-                    data={categorySalesData}
-                    margin={{
-                      top: 20,
-                      right: 30,
-                      left: 20,
-                      bottom: 5,
-                    }}
-                  >
+                  <BarChart data={data}>
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="name" />
                     <YAxis />
                     <Tooltip />
                     <Legend />
-                    <Bar dataKey="current" stackId="a" fill="#0c1442" />
-                    <Bar dataKey="previous" stackId="a" fill="#9ca3af" />
+                    <Bar dataKey="product1" fill="#0c1442" />
+                    <Bar dataKey="product2" fill="#9ca3af" />
                   </BarChart>
                 </ResponsiveContainer>
               </CardContent>
@@ -236,33 +187,18 @@ export default function ChartsPage() {
 
             <Card>
               <CardHeader className="pb-2">
-                <CardTitle className="text-lg">Сравнение продаж по SKU</CardTitle>
-                <p className="text-xs text-gray-500">
-                  {timeRange === "week" && "За неделю"}
-                  {timeRange === "month" && "За месяц"}
-                  {timeRange === "quarter" && "За квартал"}
-                  {timeRange === "year" && "За год"}
-                </p>
+                <CardTitle className="text-lg">Сравнение конверсий</CardTitle>
               </CardHeader>
               <CardContent>
                 <ResponsiveContainer width="100%" height={300}>
-                  <BarChart
-                    layout="vertical"
-                    data={skuSalesData}
-                    margin={{
-                      top: 20,
-                      right: 30,
-                      left: 40,
-                      bottom: 5,
-                    }}
-                  >
+                  <BarChart data={data}>
                     <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis type="number" />
-                    <YAxis dataKey="name" type="category" />
+                    <XAxis dataKey="name" />
+                    <YAxis />
                     <Tooltip />
                     <Legend />
-                    <Bar dataKey="current" stackId="a" fill="#0c1442" />
-                    <Bar dataKey="previous" stackId="a" fill="#9ca3af" />
+                    <Bar dataKey="conversions" fill="#0c1442" />
+                    <Bar dataKey="visits" fill="#9ca3af" />
                   </BarChart>
                 </ResponsiveContainer>
               </CardContent>
@@ -273,4 +209,3 @@ export default function ChartsPage() {
     </div>
   )
 }
-
