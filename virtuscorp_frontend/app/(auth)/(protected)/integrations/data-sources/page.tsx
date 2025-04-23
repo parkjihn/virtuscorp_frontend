@@ -3,7 +3,7 @@
 import { useState, useRef } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import axios from "axios"
+import axios, { AxiosError } from "axios"
 
 export default function DataSourcesPage() {
   const [campaignId, setCampaignId] = useState("")
@@ -52,15 +52,31 @@ export default function DataSourcesPage() {
     formData.append("file", file)
 
     try {
-      await axios.post("/api/upload-metrics", formData, {
-        headers: { "Content-Type": "multipart/form-data" },
+      // Получаем токен из localStorage или куки
+      const authToken = localStorage.getItem("auth-token") || 
+                        document.cookie.replace(/(?:(?:^|.*;\s*)auth-token\s*\=\s*([^;]*).*$)|^.*$/, "$1")
+      
+      console.log("Файл для загрузки:", file.name)
+      console.log("Токен аутентификации найден:", !!authToken)
+      
+      const response = await axios.post("/api/upload-metrics", formData, {
+        headers: { 
+          "Content-Type": "multipart/form-data",
+          "x-auth-token": authToken  // Добавляем токен в заголовок
+        },
+        withCredentials: true  // Чтобы отправлялись куки
       })
+      
+      console.log("Ответ сервера:", response.data)
       setUploadMessage("Файл успешно загружен!")
     } catch (err) {
       console.error("Ошибка загрузки файла:", err)
-      setUploadMessage("Ошибка при загрузке")
+      
+      // Типизируем ошибку как AxiosError
+      const axiosError = err as AxiosError<{detail?: string}>
+      
+      setUploadMessage(`Ошибка при загрузке: ${axiosError.response?.status || ''} ${axiosError.response?.data?.detail || axiosError.message || ''}`)
     }
-    
   }
 
   return (
