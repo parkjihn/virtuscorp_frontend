@@ -1,14 +1,43 @@
+// middleware.ts - Optimized version
+
 import { NextResponse } from "next/server"
 import type { NextRequest } from "next/server"
 
 // List of paths that don't require authentication
 const publicPaths = ["/login", "/sign-up", "/forgot-password"]
 
+// Cache for authentication results to prevent redundant checks
+const authCache = new Map<string, number>() // path -> timestamp
+
+// Cache expiry in milliseconds (30 seconds)
+const CACHE_EXPIRY = 30000
+
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
-
+  
   // Check if the path is in the public paths list
-  const isPublicPath = publicPaths.some((path) => pathname === path || pathname.startsWith(`${path}/`))
+  const isPublicPath = publicPaths.some((path) => 
+    pathname === path || pathname.startsWith(`${path}/`)
+  )
+
+  // Skip middleware for static assets, API calls that don't need auth
+  if (
+    pathname.startsWith('/_next/') || 
+    pathname.startsWith('/api/public/') ||
+    pathname.includes('.') // Files with extensions
+  ) {
+    return NextResponse.next()
+  }
+
+  // Check cache to avoid redundant auth checks
+  const cacheKey = `${pathname}-${isPublicPath}`
+  const cachedResult = authCache.get(cacheKey)
+  const now = Date.now()
+  
+  if (cachedResult && now - cachedResult < CACHE_EXPIRY) {
+    // Use cached result if it's still valid
+    return NextResponse.next()
+  }
 
   // Get the authentication token from cookies
   const authToken = request.cookies.get("auth-token")?.value
@@ -19,11 +48,8 @@ export function middleware(request: NextRequest) {
   // Use either cookie token or header token
   const token = authToken || headerToken
 
-  console.log(`Middleware: Path=${pathname}, isPublicPath=${isPublicPath}, hasAuthToken=${!!token}`)
-
   // If the user is not authenticated and trying to access a protected route
   if (!token && !isPublicPath) {
-    console.log("Middleware: Redirecting to login")
     // Redirect to the login page
     const url = request.nextUrl.clone()
     url.pathname = "/login"
@@ -32,7 +58,6 @@ export function middleware(request: NextRequest) {
 
   // If the user is authenticated and trying to access login or sign-up
   if (token && isPublicPath) {
-    console.log("Middleware: Redirecting to dashboard")
     // Redirect to the dashboard
     const url = request.nextUrl.clone()
     url.pathname = "/dashboard"
@@ -47,19 +72,25 @@ export function middleware(request: NextRequest) {
     response.headers.set("x-auth-token", token)
   }
 
+  // Update cache with current timestamp
+  authCache.set(cacheKey, now)
+  
+  // Clean up expired cache entries periodically
+  if (Math.random() < 0.01) { // 1% chance to clean up on each request
+    for (const [key, timestamp] of authCache.entries()) {
+      if (now - timestamp > CACHE_EXPIRY) {
+        authCache.delete(key)
+      }
+    }
+  }
+
   return response
 }
 
-// Configure the middleware to run on specific paths
+// Configure the middleware to run only on specific paths that need authentication
 export const config = {
   matcher: [
-    /*
-     * Match all request paths except for the ones starting with:
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     * - public folder
-     */
-    "/((?!_next/static|_next/image|favicon.ico|public).*)",
+    // Exclude static files
+    "/((?!_next/static|_next/image|favicon.ico|public|api/public).*)",
   ],
 }
