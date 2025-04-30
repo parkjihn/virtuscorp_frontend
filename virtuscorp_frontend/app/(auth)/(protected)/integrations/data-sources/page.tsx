@@ -3,7 +3,7 @@
 import { useState, useRef } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import axios, { AxiosError } from "axios"
+import axios, { type AxiosError } from "axios"
 
 export default function DataSourcesPage() {
   const [campaignId, setCampaignId] = useState("")
@@ -53,29 +53,33 @@ export default function DataSourcesPage() {
 
     try {
       // Получаем токен из localStorage или куки
-      const authToken = localStorage.getItem("auth-token") || 
-                        document.cookie.replace(/(?:(?:^|.*;\s*)auth-token\s*\=\s*([^;]*).*$)|^.*$/, "$1")
-      
+      const authToken =
+        localStorage.getItem("auth-token") ||
+        document.cookie.replace(/(?:(?:^|.*;\s*)auth-token\s*=\s*([^;]*).*$)|^.*$/, "$1")
+
       console.log("Файл для загрузки:", file.name)
       console.log("Токен аутентификации найден:", !!authToken)
-      
-      const response = await axios.post("/api/upload-metrics", formData, {
-        headers: { 
+
+      // Fix: Use the correct endpoint URL
+      const response = await axios.post("https://api.virtuscorp.site/api/upload-metrics", formData, {
+        headers: {
           "Content-Type": "multipart/form-data",
-          "x-auth-token": authToken  // Добавляем токен в заголовок
+          "x-auth-token": authToken, // Добавляем токен в заголовок
         },
-        withCredentials: true  // Чтобы отправлялись куки
+        withCredentials: true, // Чтобы отправлялись куки
       })
-      
+
       console.log("Ответ сервера:", response.data)
       setUploadMessage("Файл успешно загружен!")
     } catch (err) {
       console.error("Ошибка загрузки файла:", err)
-      
+
       // Типизируем ошибку как AxiosError
-      const axiosError = err as AxiosError<{detail?: string}>
-      
-      setUploadMessage(`Ошибка при загрузке: ${axiosError.response?.status || ''} ${axiosError.response?.data?.detail || axiosError.message || ''}`)
+      const axiosError = err as AxiosError<{ detail?: string }>
+
+      setUploadMessage(
+        `Ошибка при загрузке: ${axiosError.response?.status || ""} ${axiosError.response?.data?.detail || axiosError.message || ""}`,
+      )
     }
   }
 
@@ -88,12 +92,26 @@ export default function DataSourcesPage() {
         <div className="mb-8">
           <h2 className="text-lg font-semibold mb-4">Подключение к Яндекс Маркет</h2>
           <div className="space-y-4">
-            <Input type="text" placeholder="ID кампании" value={campaignId} onChange={(e) => setCampaignId(e.target.value)} />
-            <Input type="text" placeholder="ID кабинета" value={businessId} onChange={(e) => setBusinessId(e.target.value)} />
+            <Input
+              type="text"
+              placeholder="ID кампании"
+              value={campaignId}
+              onChange={(e) => setCampaignId(e.target.value)}
+            />
+            <Input
+              type="text"
+              placeholder="ID кабинета"
+              value={businessId}
+              onChange={(e) => setBusinessId(e.target.value)}
+            />
             <Input type="password" placeholder="Токен" value={token} onChange={(e) => setToken(e.target.value)} />
             <div className="flex space-x-4">
-              <Button className="bg-[#0c1442]" onClick={handleSave}>Сохранить</Button>
-              <Button variant="outline" className="border-[#0c1442] text-[#0c1442]" onClick={handleVerify}>Проверить</Button>
+              <Button className="bg-[#0c1442]" onClick={handleSave}>
+                Сохранить
+              </Button>
+              <Button variant="outline" className="border-[#0c1442] text-[#0c1442]" onClick={handleVerify}>
+                Проверить
+              </Button>
             </div>
           </div>
         </div>
@@ -103,7 +121,9 @@ export default function DataSourcesPage() {
         <div>
           <h2 className="text-lg font-semibold mb-4">Локальная загрузка Excel / CSV</h2>
           <input type="file" ref={fileInputRef} accept=".csv,.xlsx" />
-          <Button className="mt-2 bg-[#0c1442]" onClick={handleFileUpload}>Загрузить</Button>
+          <Button className="mt-2 bg-[#0c1442]" onClick={handleFileUpload}>
+            Загрузить
+          </Button>
           {uploadMessage && <p className="mt-2 text-sm text-gray-600">{uploadMessage}</p>}
         </div>
       </div>
