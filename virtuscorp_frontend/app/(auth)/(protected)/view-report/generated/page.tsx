@@ -35,22 +35,23 @@ export default function GeneratedReportsPage() {
       setLoading(true)
       setError(null)
 
-      // Получаем токен из localStorage или куки
+      // Get the auth token from localStorage or cookies
       const authToken =
         localStorage.getItem("auth-token") ||
         document.cookie.replace(/(?:(?:^|.*;\s*)auth-token\s*=\s*([^;]*).*$)|^.*$/, "$1")
 
-      const response = await axios.get("/api/reports", {
+      const response = await axios.get("https://api.virtuscorp.site/api/reports", {
         headers: {
           "Content-Type": "application/json",
           "x-auth-token": authToken,
         },
       })
 
+      console.log("Reports data:", response.data)
       setReports(response.data)
     } catch (err) {
-      console.error("Ошибка при загрузке отчетов:", err)
-      setError("Не удалось загрузить отчеты. Пожалуйста, попробуйте позже.")
+      console.error("Error loading reports:", err)
+      setError("Failed to load reports. Please try again later.")
     } finally {
       setLoading(false)
     }
@@ -58,35 +59,108 @@ export default function GeneratedReportsPage() {
 
   const downloadReport = async (reportId: number) => {
     try {
-      // В реальном приложении здесь будет запрос на скачивание отчета
-      alert(`Скачивание отчета с ID: ${reportId}`)
+      // Get the auth token
+      const authToken =
+        localStorage.getItem("auth-token") ||
+        document.cookie.replace(/(?:(?:^|.*;\s*)auth-token\s*=\s*([^;]*).*$)|^.*$/, "$1")
+
+      console.log(`Downloading report with ID: ${reportId}`)
+
+      // Make the actual request to download the report
+      const response = await axios.get(`https://api.virtuscorp.site/api/reports/${reportId}/download`, {
+        headers: {
+          "x-auth-token": authToken,
+        },
+        responseType: "blob",
+      })
+
+      // Create a download link
+      const url = window.URL.createObjectURL(new Blob([response.data]))
+      const link = document.createElement("a")
+      link.href = url
+
+      // Get filename from content-disposition header if available
+      const contentDisposition = response.headers["content-disposition"]
+      let filename = `report-${reportId}.pdf`
+
+      if (contentDisposition) {
+        const filenameMatch = contentDisposition.match(/filename="(.+)"/)
+        if (filenameMatch && filenameMatch.length === 2) {
+          filename = filenameMatch[1]
+        }
+      }
+
+      link.setAttribute("download", filename)
+      document.body.appendChild(link)
+      link.click()
+
+      // Clean up
+      setTimeout(() => {
+        window.URL.revokeObjectURL(url)
+        link.remove()
+      }, 100)
     } catch (err) {
-      console.error("Ошибка при скачивании отчета:", err)
+      console.error("Error downloading report:", err)
+      alert("Error downloading report. Please try again.")
     }
   }
 
-  const shareReport = (reportId: number) => {
-    // В реальном приложении здесь будет функционал для шаринга
-    alert(`Поделиться отчетом с ID: ${reportId}`)
+  const shareReport = async (reportId: number) => {
+    try {
+      // Get the auth token
+      const authToken =
+        localStorage.getItem("auth-token") ||
+        document.cookie.replace(/(?:(?:^|.*;\s*)auth-token\s*=\s*([^;]*).*$)|^.*$/, "$1")
+
+      // Get the report details to share
+      const response = await axios.get(`https://api.virtuscorp.site/api/reports/${reportId}`, {
+        headers: {
+          "x-auth-token": authToken,
+        },
+      })
+
+      const report = response.data
+
+      // Create a shareable link or message
+      const shareText = `Report: ${report.title} (Created: ${new Date(report.created_at).toLocaleString()})`
+      const shareUrl = `${window.location.origin}/view-report/${reportId}`
+
+      // Check if Web Share API is available
+      if (navigator.share) {
+        await navigator.share({
+          title: report.title,
+          text: shareText,
+          url: shareUrl,
+        })
+      } else {
+        // Fallback for browsers that don't support Web Share API
+        // Copy to clipboard
+        await navigator.clipboard.writeText(`${shareText}\n${shareUrl}`)
+        alert("Report link copied to clipboard!")
+      }
+    } catch (err) {
+      console.error("Error sharing report:", err)
+      alert("Error sharing report. Please try again.")
+    }
   }
 
-  // Фильтрация отчетов
+  // Filter reports
   const filteredReports = reports.filter((report) => {
     const matchesSearch = searchTerm === "" || report.title.toLowerCase().includes(searchTerm.toLowerCase())
-
     const matchesType = reportTypeFilter === "" || report.report_type === reportTypeFilter
-
     const matchesStatus = statusFilter === "" || report.status === statusFilter
 
-    // Здесь можно добавить фильтрацию по дате
+    // Date filtering would be implemented here
+    // For now, we'll just return true for date filtering
+    const matchesDate = dateFilter === "" || true
 
-    return matchesSearch && matchesType && matchesStatus
+    return matchesSearch && matchesType && matchesStatus && matchesDate
   })
 
   if (loading) {
     return (
       <div className="container mx-auto py-8 px-4">
-        <h1 className="text-3xl font-bold text-[#0c1442] mb-6">Загрузка отчетов...</h1>
+        <h1 className="text-3xl font-bold text-[#0c1442] mb-6">Loading reports...</h1>
         <div className="flex justify-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#0c1442]"></div>
         </div>
@@ -96,17 +170,17 @@ export default function GeneratedReportsPage() {
 
   return (
     <div className="container mx-auto py-8 px-4">
-      <h1 className="text-3xl font-bold text-[#0c1442] mb-6">Сформированные отчеты</h1>
+      <h1 className="text-3xl font-bold text-[#0c1442] mb-6">Generated Reports</h1>
 
       <Card className="p-6">
-        <p className="text-gray-600 mb-4">Получите доступ и управляйте всеми вашими отчетами в одном месте.</p>
+        <p className="text-gray-600 mb-4">Access and manage all your reports in one place.</p>
 
         {error && <div className="bg-red-50 border border-red-200 text-red-800 p-4 rounded-lg mb-6">{error}</div>}
 
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
           <div>
             <Input
-              placeholder="Поиск по названию, типу или дате"
+              placeholder="Search by title, type, or date"
               className="w-full"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
@@ -115,41 +189,41 @@ export default function GeneratedReportsPage() {
           <div>
             <Select value={reportTypeFilter} onValueChange={setReportTypeFilter}>
               <SelectTrigger>
-                <SelectValue placeholder="Тип отчета" />
+                <SelectValue placeholder="Report Type" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">Все типы</SelectItem>
-                <SelectItem value="financial">Финансовая сводка</SelectItem>
-                <SelectItem value="sales">Отчет по продажам</SelectItem>
-                <SelectItem value="inventory">Отчет по инвентарю</SelectItem>
-                <SelectItem value="marketing">Маркетинговая аналитика</SelectItem>
+                <SelectItem value="all">All Types</SelectItem>
+                <SelectItem value="financial">Financial Summary</SelectItem>
+                <SelectItem value="sales">Sales Report</SelectItem>
+                <SelectItem value="inventory">Inventory Report</SelectItem>
+                <SelectItem value="marketing">Marketing Analytics</SelectItem>
               </SelectContent>
             </Select>
           </div>
           <div>
             <Select value={dateFilter} onValueChange={setDateFilter}>
               <SelectTrigger>
-                <SelectValue placeholder="Дата создания" />
+                <SelectValue placeholder="Creation Date" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">Все даты</SelectItem>
-                <SelectItem value="newest">Сначала новые</SelectItem>
-                <SelectItem value="oldest">Сначала старые</SelectItem>
-                <SelectItem value="last-week">За последнюю неделю</SelectItem>
-                <SelectItem value="last-month">За последний месяц</SelectItem>
+                <SelectItem value="all">All Dates</SelectItem>
+                <SelectItem value="newest">Newest First</SelectItem>
+                <SelectItem value="oldest">Oldest First</SelectItem>
+                <SelectItem value="last-week">Last Week</SelectItem>
+                <SelectItem value="last-month">Last Month</SelectItem>
               </SelectContent>
             </Select>
           </div>
           <div>
             <Select value={statusFilter} onValueChange={setStatusFilter}>
               <SelectTrigger>
-                <SelectValue placeholder="Статус" />
+                <SelectValue placeholder="Status" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">Все статусы</SelectItem>
-                <SelectItem value="completed">Завершен</SelectItem>
-                <SelectItem value="in-progress">В процессе</SelectItem>
-                <SelectItem value="failed">Ошибка</SelectItem>
+                <SelectItem value="all">All Statuses</SelectItem>
+                <SelectItem value="completed">Completed</SelectItem>
+                <SelectItem value="in-progress">In Progress</SelectItem>
+                <SelectItem value="failed">Failed</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -158,9 +232,9 @@ export default function GeneratedReportsPage() {
         <div className="space-y-4">
           {filteredReports.length === 0 ? (
             <div className="text-center py-8">
-              <p className="text-gray-500">Отчеты не найдены</p>
+              <p className="text-gray-500">No reports found</p>
               <Button className="mt-4 bg-[#0c1442]" onClick={() => (window.location.href = "/reports/export")}>
-                Создать новый отчет
+                Create New Report
               </Button>
             </div>
           ) : (
@@ -169,34 +243,34 @@ export default function GeneratedReportsPage() {
                 <div className="flex flex-col md:flex-row justify-between">
                   <div className="space-y-2">
                     <h3 className="text-lg font-semibold">{report.title}</h3>
-                    <p className="text-sm text-gray-500">Создан: {new Date(report.created_at).toLocaleString()}</p>
+                    <p className="text-sm text-gray-500">Created: {new Date(report.created_at).toLocaleString()}</p>
                     <p className="text-sm text-gray-500">
-                      Тип:{" "}
+                      Type:{" "}
                       {report.report_type === "financial"
-                        ? "Финансовая сводка"
+                        ? "Financial Summary"
                         : report.report_type === "sales"
-                          ? "Отчет по продажам"
+                          ? "Sales Report"
                           : report.report_type === "inventory"
-                            ? "Отчет по инвентарю"
+                            ? "Inventory Report"
                             : report.report_type === "marketing"
-                              ? "Маркетинговая аналитика"
+                              ? "Marketing Analytics"
                               : report.report_type}
                     </p>
                     <div className="flex items-center">
                       {report.status === "completed" ? (
                         <>
                           <CheckCircle className="h-5 w-5 text-green-500 mr-2" />
-                          <span className="text-sm">Статус: Завершен</span>
+                          <span className="text-sm">Status: Completed</span>
                         </>
                       ) : report.status === "in-progress" ? (
                         <>
                           <Clock className="h-5 w-5 text-amber-500 mr-2" />
-                          <span className="text-sm">Статус: В процессе</span>
+                          <span className="text-sm">Status: In Progress</span>
                         </>
                       ) : (
                         <>
                           <AlertCircle className="h-5 w-5 text-red-500 mr-2" />
-                          <span className="text-sm">Статус: Ошибка</span>
+                          <span className="text-sm">Status: Failed</span>
                         </>
                       )}
                     </div>
@@ -207,7 +281,7 @@ export default function GeneratedReportsPage() {
                       disabled={report.status !== "completed"}
                       onClick={() => (window.location.href = `/view-report/${report.id}`)}
                     >
-                      Просмотр отчета
+                      View Report
                     </Button>
                     <Button
                       variant="outline"
@@ -215,14 +289,14 @@ export default function GeneratedReportsPage() {
                       disabled={report.status !== "completed"}
                     >
                       <Download className="h-4 w-4 mr-2" />
-                      Скачать
+                      Download
                     </Button>
                     <Button
                       variant="outline"
                       onClick={() => shareReport(report.id)}
                       disabled={report.status !== "completed"}
                     >
-                      Поделиться
+                      Share
                     </Button>
                   </div>
                 </div>

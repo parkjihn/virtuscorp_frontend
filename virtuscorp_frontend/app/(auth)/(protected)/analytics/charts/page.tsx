@@ -59,7 +59,7 @@ export default function ChartsPage() {
 
         console.log("Fetching data with auth token:", !!authToken)
 
-        const res = await axios.get("/api/uploaded-data", {
+        const res = await axios.get("https://api.virtuscorp.site/api/uploaded-data", {
           headers: {
             "x-auth-token": authToken,
           },

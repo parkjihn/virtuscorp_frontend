@@ -29,12 +29,12 @@ export default function ExportPage() {
       setIsLoading(true)
       setError("")
 
-      // Получаем токен из localStorage или куки
+      // Get the auth token from localStorage or cookies
       const authToken =
         localStorage.getItem("auth-token") ||
         document.cookie.replace(/(?:(?:^|.*;\s*)auth-token\s*=\s*([^;]*).*$)|^.*$/, "$1")
 
-      // Формируем данные для запроса
+      // Prepare report data
       const reportData = {
         report_type: reportType,
         date_range: dateRange,
@@ -47,27 +47,31 @@ export default function ExportPage() {
         combine_reports: combineReports,
       }
 
-      // Отправляем запрос на создание отчета
-      const response = await axios.post("/api/reports/generate", reportData, {
+      console.log("Sending report data:", reportData)
+
+      // Send request to create report
+      const response = await axios.post("https://api.virtuscorp.site/api/reports/generate", reportData, {
         headers: {
           "Content-Type": "application/json",
           "x-auth-token": authToken,
         },
-        responseType: "blob", // Важно для получения бинарных данных (PDF)
+        responseType: "blob", // Important for receiving binary data (PDF)
       })
 
-      // Создаем ссылку для скачивания файла
+      console.log("Report generation successful")
+
+      // Create a download link for the PDF
       const url = window.URL.createObjectURL(new Blob([response.data]))
       const link = document.createElement("a")
       link.href = url
 
-      // Получаем имя файла из заголовков ответа или используем стандартное
+      // Get filename from response headers or use default
       const contentDisposition = response.headers["content-disposition"]
       let filename = "report.pdf"
 
       if (contentDisposition) {
         const filenameMatch = contentDisposition.match(/filename="(.+)"/)
-        if (filenameMatch.length === 2) filename = filenameMatch[1]
+        if (filenameMatch && filenameMatch.length === 2) filename = filenameMatch[1]
       }
 
       link.setAttribute("download", filename)
@@ -76,11 +80,11 @@ export default function ExportPage() {
       link.remove()
       window.URL.revokeObjectURL(url)
 
-      // Перенаправляем на страницу сгенерированных отчетов
+      // Redirect to generated reports page
       router.push("/view-report/generated")
     } catch (err) {
-      console.error("Ошибка при создании отчета:", err)
-      setError("Произошла ошибка при создании отчета. Пожалуйста, попробуйте снова.")
+      console.error("Error creating report:", err)
+      setError("An error occurred while creating the report. Please try again.")
     } finally {
       setIsLoading(false)
     }
@@ -90,24 +94,24 @@ export default function ExportPage() {
     <div className="container mx-auto py-8 px-4">
       <Card className="w-full max-w-4xl mx-auto">
         <CardContent className="p-6">
-          <h1 className="text-4xl font-bold text-[#0c1442] mb-2">Экспорт отчетов</h1>
-          <p className="text-gray-600 mb-8">Создавайте и настраивайте отчеты для ваших бизнес-потребностей.</p>
+          <h1 className="text-4xl font-bold text-[#0c1442] mb-2">Export Reports</h1>
+          <p className="text-gray-600 mb-8">Create and customize reports for your business needs.</p>
 
           {error && <div className="bg-red-50 border border-red-200 text-red-800 p-4 rounded-lg mb-6">{error}</div>}
 
           <div className="space-y-8">
             <div className="space-y-4">
-              <h2 className="text-2xl font-bold text-[#0c1442]">Шаг 1: Выберите тип отчета</h2>
+              <h2 className="text-2xl font-bold text-[#0c1442]">Step 1: Choose Report Type</h2>
               <div>
                 <Select value={reportType} onValueChange={setReportType}>
                   <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Финансовая сводка" />
+                    <SelectValue placeholder="Financial Summary" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="financial">Финансовая сводка</SelectItem>
-                    <SelectItem value="sales">Отчет по продажам</SelectItem>
-                    <SelectItem value="inventory">Отчет по инвентарю</SelectItem>
-                    <SelectItem value="marketing">Маркетинговая аналитика</SelectItem>
+                    <SelectItem value="financial">Financial Summary</SelectItem>
+                    <SelectItem value="sales">Sales Report</SelectItem>
+                    <SelectItem value="inventory">Inventory Report</SelectItem>
+                    <SelectItem value="marketing">Marketing Analytics</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -117,28 +121,28 @@ export default function ExportPage() {
                   checked={combineReports}
                   onCheckedChange={(checked) => setCombineReports(!!checked)}
                 />
-                <Label htmlFor="combine">Объединить несколько отчетов в один файл</Label>
+                <Label htmlFor="combine">Combine multiple reports into one file</Label>
               </div>
             </div>
 
             <div className="space-y-4">
-              <h2 className="text-2xl font-bold text-[#0c1442]">Шаг 2: Настройте данные</h2>
+              <h2 className="text-2xl font-bold text-[#0c1442]">Step 2: Configure Data</h2>
 
               <div className="space-y-2">
-                <Label htmlFor="date-range">Выбор диапазона дат</Label>
+                <Label htmlFor="date-range">Date Range Selection</Label>
                 <Input
                   id="date-range"
-                  placeholder="ДД-ММ-ГГГГ"
+                  placeholder="DD-MM-YYYY"
                   value={dateRange}
                   onChange={(e) => setDateRange(e.target.value)}
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="filters">Фильтры</Label>
+                <Label htmlFor="filters">Filters</Label>
                 <Input
                   id="filters"
-                  placeholder="например, регионы, продукты"
+                  placeholder="e.g., regions, products"
                   value={filters}
                   onChange={(e) => setFilters(e.target.value)}
                 />
@@ -151,7 +155,7 @@ export default function ExportPage() {
                     checked={excludeTaxes}
                     onCheckedChange={(checked) => setExcludeTaxes(!!checked)}
                   />
-                  <Label htmlFor="exclude-taxes">Исключить налоги</Label>
+                  <Label htmlFor="exclude-taxes">Exclude Taxes</Label>
                 </div>
                 <div className="flex items-center space-x-2">
                   <Checkbox
@@ -159,13 +163,13 @@ export default function ExportPage() {
                     checked={showProfit}
                     onCheckedChange={(checked) => setShowProfit(!!checked)}
                   />
-                  <Label htmlFor="show-profit">Показать маржу прибыли</Label>
+                  <Label htmlFor="show-profit">Show Profit Margin</Label>
                 </div>
               </div>
             </div>
 
             <div className="space-y-4">
-              <h2 className="text-2xl font-bold text-[#0c1442]">Шаг 3: Выберите формат экспорта</h2>
+              <h2 className="text-2xl font-bold text-[#0c1442]">Step 3: Choose Export Format</h2>
               <div>
                 <Select value={exportFormat} onValueChange={setExportFormat}>
                   <SelectTrigger className="w-full">
@@ -182,34 +186,34 @@ export default function ExportPage() {
             </div>
 
             <div className="space-y-4">
-              <h2 className="text-2xl font-bold text-[#0c1442]">Шаг 4: Настройки экспорта</h2>
+              <h2 className="text-2xl font-bold text-[#0c1442]">Step 4: Export Settings</h2>
 
               <div className="space-y-2">
-                <Label htmlFor="file-naming">Соглашение об именовании файлов</Label>
+                <Label htmlFor="file-naming">File Naming Convention</Label>
                 <Input
                   id="file-naming"
-                  placeholder="По умолчанию: Тип_Отчета_Дата"
+                  placeholder="Default: Report_Type_Date"
                   value={fileNaming}
                   onChange={(e) => setFileNaming(e.target.value)}
                 />
               </div>
 
               <div className="space-y-2">
-                <Label>Варианты назначения</Label>
+                <Label>Destination Options</Label>
                 <div className="flex items-center space-x-2">
                   <Checkbox
                     id="download"
                     checked={downloadToDevice}
                     onCheckedChange={(checked) => setDownloadToDevice(!!checked)}
                   />
-                  <Label htmlFor="download">Скачать на устройство</Label>
+                  <Label htmlFor="download">Download to Device</Label>
                 </div>
               </div>
             </div>
 
             <div className="pt-4">
               <Button className="w-full md:w-auto bg-[#0c1442]" onClick={handleCreateReport} disabled={isLoading}>
-                {isLoading ? "Создание отчета..." : "Создать отчет"}
+                {isLoading ? "Creating Report..." : "Create Report"}
               </Button>
             </div>
           </div>
