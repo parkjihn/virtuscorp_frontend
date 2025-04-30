@@ -36,16 +36,21 @@ const LoginForm = () => {
         body: JSON.stringify({ email, password }),
       })
 
-      if (!response.ok) {
-        throw new Error(`Ошибка авторизации: ${response.status}`)
-      }
-
       const data = await response.json()
+
+      if (!response.ok) {
+        // Handle specific error codes
+        if (response.status === 401) {
+          throw new Error("Неверный email или пароль")
+        } else {
+          throw new Error(`Ошибка авторизации: ${response.status}`)
+        }
+      }
 
       if (data.access_token) {
         // Store token in localStorage only - the cookie should be handled by the server
         localStorage.setItem("auth-token", data.access_token)
-        
+
         // Immediate redirect - no need for setTimeout
         router.push("/dashboard")
         router.refresh()
