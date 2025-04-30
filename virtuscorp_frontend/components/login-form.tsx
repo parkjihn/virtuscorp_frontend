@@ -1,7 +1,6 @@
 "use client"
 
 import type React from "react"
-
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
@@ -20,73 +19,44 @@ const LoginForm = () => {
   const [isLoading, setIsLoading] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
   const [rememberMe, setRememberMe] = useState(false)
-  const [debugInfo, setDebugInfo] = useState<string>("")
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
     setError("")
-    setDebugInfo("")
 
     try {
-      // Для отладки: проверяем текущие куки перед запросом
-      const currentCookies = document.cookie
-      setDebugInfo((prev) => prev + `Current cookies before login: ${currentCookies}\n`)
-
+      // Single fetch request with proper credentials handling
       const response = await fetch("https://api.virtuscorp.site/auth/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        credentials: "include", // Важно для работы с куками
+        credentials: "include", // This ensures cookies are handled properly
         body: JSON.stringify({ email, password }),
       })
 
-      setDebugInfo((prev) => prev + `Response status: ${response.status}\n`)
-
       if (!response.ok) {
-        throw new Error(`Error: ${response.status}`)
+        throw new Error(`Ошибка авторизации: ${response.status}`)
       }
 
       const data = await response.json()
-      setDebugInfo((prev) => prev + `Response data: ${JSON.stringify(data)}\n`)
 
       if (data.access_token) {
-        // Сохраняем токен в localStorage
+        // Store token in localStorage only - the cookie should be handled by the server
         localStorage.setItem("auth-token", data.access_token)
-        setDebugInfo((prev) => prev + `Token saved to localStorage\n`)
-
-        // Также устанавливаем куки вручную на клиенте для дополнительной надежности
-        document.cookie = `auth-token=${data.access_token}; path=/; SameSite=Lax;`
-        setDebugInfo((prev) => prev + `Token saved to cookie\n`)
-
-        // Проверяем куки после установки
-        const afterCookies = document.cookie
-        setDebugInfo((prev) => prev + `Cookies after login: ${afterCookies}\n`)
-
-        // Добавляем токен в заголовки для всех последующих запросов
-        if (typeof window !== "undefined") {
-          // Устанавливаем токен в localStorage для использования в middleware
-          window.localStorage.setItem("auth-token", data.access_token)
-        }
-
-        // Небольшая задержка перед редиректом
-        setTimeout(() => {
-          router.push("/dashboard")
-          router.refresh()
-        }, 1000)
-
-        return
+        
+        // Immediate redirect - no need for setTimeout
+        router.push("/dashboard")
+        router.refresh()
       } else {
-        throw new Error("No access token received")
+        throw new Error("Токен авторизации не получен")
       }
     } catch (err: unknown) {
       if (err instanceof Error) {
         setError(err.message)
-        setDebugInfo((prev) => prev + `Error: ${err.message}\n`)
       } else {
-        setError("Произошла неизвестная ошибка.")
-        setDebugInfo((prev) => prev + `Unknown error\n`)
+        setError("Произошла неизвестная ошибка при авторизации")
       }
     } finally {
       setIsLoading(false)
@@ -171,14 +141,6 @@ const LoginForm = () => {
                 </Link>
               </div>
             </form>
-
-            {/* Отладочная информация (можно удалить в продакшене) */}
-            {debugInfo && (
-              <div className="mt-4 p-3 bg-gray-100 rounded-md text-xs font-mono whitespace-pre-wrap">
-                <p className="font-bold mb-2">Отладочная информация:</p>
-                {debugInfo}
-              </div>
-            )}
           </CardContent>
         </Card>
       </div>
@@ -189,4 +151,3 @@ const LoginForm = () => {
 }
 
 export default LoginForm
-
