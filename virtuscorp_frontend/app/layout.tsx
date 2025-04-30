@@ -3,14 +3,19 @@ import type { Metadata } from "next"
 import { Geist, Geist_Mono } from "next/font/google"
 import "./globals.css"
 
+// Preload fonts with proper subset for better performance
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
+  display: "swap", // Add display swap for better rendering
+  preload: true,
 })
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
+  display: "swap",
+  preload: true,
 })
 
 export const metadata: Metadata = {
@@ -26,21 +31,18 @@ export default function RootLayout({
   return (
     <html lang="ru">
       <head>
-        {/* Добавляем скрипт для проверки аутентификации */}
+        {/* Optimized script - using just a simple token check without excessive operations */}
         <script
           dangerouslySetInnerHTML={{
             __html: `
               (function() {
                 try {
-                  // Проверяем наличие токена в localStorage
+                  // Simple and efficient check
                   const token = localStorage.getItem('auth-token');
-                  if (token) {
-                    // Если токен есть, устанавливаем его в куки
-                    document.cookie = 'auth-token=' + token + '; path=/';
+                  if (token && !document.cookie.includes('auth-token=')) {
+                    document.cookie = 'auth-token=' + token + '; path=/; max-age=86400; SameSite=Lax';
                   }
-                } catch (e) {
-                  console.error('Auth check error:', e);
-                }
+                } catch (e) {}
               })();
             `,
           }}
