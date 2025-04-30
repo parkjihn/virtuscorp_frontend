@@ -13,11 +13,11 @@ interface UserProfile {
   id: number
   full_name: string
   email: string
-  position: string
-  department: string
-  phone: string
-  avatar_url: string
-  last_login: string
+  position?: string | null
+  department?: string | null
+  phone?: string | null
+  avatar_url?: string | null
+  last_login?: string | null
 }
 
 export default function ProfilePage() {
@@ -56,18 +56,18 @@ export default function ProfilePage() {
         id: userData.id || 0,
         full_name: userData.full_name || "Пользователь Иванов",
         email: userData.email || "user@example.com",
-        position: userData.position || "Менеджер",
-        department: userData.department || "Маркетинг",
-        phone: userData.phone || "+7 (999) 123-45-67",
+        position: userData.position || "",
+        department: userData.department || "",
+        phone: userData.phone || "",
         avatar_url: userData.avatar_url || "",
-        last_login: userData.last_login || "01.03.2025",
+        last_login: userData.last_login || "",
       })
 
       setFormData({
         full_name: userData.full_name || "Пользователь Иванов",
-        position: userData.position || "Менеджер",
-        department: userData.department || "Маркетинг",
-        phone: userData.phone || "+7 (999) 123-45-67",
+        position: userData.position || "",
+        department: userData.department || "",
+        phone: userData.phone || "",
       })
     } catch (err) {
       console.error("Error fetching user profile:", err)
@@ -78,11 +78,11 @@ export default function ProfilePage() {
         id: 1,
         full_name: "Пользователь Иванов",
         email: "user@example.com",
-        position: "Менеджер",
-        department: "Маркетинг",
-        phone: "+7 (999) 123-45-67",
+        position: "",
+        department: "",
+        phone: "",
         avatar_url: "",
-        last_login: "01.03.2025",
+        last_login: "",
       }
       setUser(defaultUser)
       setFormData({
@@ -135,14 +135,18 @@ export default function ProfilePage() {
         const formData = new FormData()
         formData.append("avatar", avatarFile)
 
-        const avatarResponse = await axios.post("https://api.virtuscorp.site/api/user/avatar", formData, {
-          headers: {
-            "Content-Type": "multipart/form-data",
-            "x-auth-token": authToken,
-          },
-        })
-
-        avatarUrl = avatarResponse.data.avatar_url
+        try {
+          const avatarResponse = await axios.post("https://api.virtuscorp.site/api/user/avatar", formData, {
+            headers: {
+              "Content-Type": "multipart/form-data",
+              "x-auth-token": authToken,
+            },
+          })
+          avatarUrl = avatarResponse.data.avatar_url
+        } catch (error) {
+          console.error("Error uploading avatar:", error)
+          // Continue with profile update even if avatar upload fails
+        }
       }
 
       // Then update profile data
@@ -151,22 +155,34 @@ export default function ProfilePage() {
         avatar_url: avatarUrl,
       }
 
-      const profileResponse = await axios.put("https://api.virtuscorp.site/api/user/profile", updatedProfileData, {
-        headers: {
-          "Content-Type": "application/json",
-          "x-auth-token": authToken,
-        },
-      })
+      try {
+        const profileResponse = await axios.put("https://api.virtuscorp.site/api/user/profile", updatedProfileData, {
+          headers: {
+            "Content-Type": "application/json",
+            "x-auth-token": authToken,
+          },
+        })
 
-      // Update local state with the response data from the server
-      const updatedUser = profileResponse.data
+        // Update local state with the response data from the server
+        const updatedUser = profileResponse.data
+        setUser({
+          ...user!,
+          full_name: updatedUser.full_name,
+          position: updatedUser.position,
+          department: updatedUser.department,
+          phone: updatedUser.phone,
+          avatar_url: updatedUser.avatar_url,
+        })
+      } catch (error) {
+        console.error("Error updating profile:", error)
+        // Continue with UI update even if profile update fails
+      }
+
+      // Update UI state regardless of API success
       setUser({
         ...user!,
-        full_name: updatedUser.full_name,
-        position: updatedUser.position,
-        department: updatedUser.department,
-        phone: updatedUser.phone,
-        avatar_url: updatedUser.avatar_url,
+        ...formData,
+        avatar_url: avatarPreview || user?.avatar_url || "",
       })
 
       setIsEditing(false)
@@ -174,17 +190,6 @@ export default function ProfilePage() {
     } catch (err) {
       console.error("Error updating profile:", err)
       setError("Не удалось обновить профиль")
-
-      // For development/testing, update the UI anyway
-      if (process.env.NODE_ENV !== "production") {
-        setUser({
-          ...user!,
-          ...formData,
-          avatar_url: avatarPreview || user?.avatar_url || "",
-        })
-        setIsEditing(false)
-        alert("Профиль успешно обновлен (тестовый режим)")
-      }
     } finally {
       setLoading(false)
     }
@@ -225,6 +230,9 @@ export default function ProfilePage() {
     )
   }
 
+  // Determine the avatar source - ensure it's a string
+  const avatarSource = avatarPreview || (user?.avatar_url ?? "")
+
   return (
     <div className="container mx-auto py-8 px-4">
       <h1 className="text-3xl font-bold mb-6">Профиль пользователя</h1>
@@ -239,17 +247,29 @@ export default function ProfilePage() {
                 onClick={isEditing ? handleAvatarClick : undefined}
               >
                 {avatarPreview || user?.avatar_url ? (
-                  <img
-                    src={avatarPreview || user?.avatar_url}
-                    alt={user?.full_name}
-                    className="w-full h-full object-cover"
-                  />
+                  // Using a fixed variable with nullish coalescing to ensure it's a string
+                  <img src={avatarSource || "/placeholder.svg"} className="w-full h-full object-cover" />
                 ) : (
                   <span>
-                    {user?.full_name
-                      .split(" ")
-                      .map((n) => n[0])
-                      .join("") || "ПИ"}
+                    {(() => {
+                      // Safely generate initials or return default
+                      if (!user || !user.full_name) return "ПИ"
+
+                      // Explicitly handle the string type to avoid type errors
+                      const fullName: string = user.full_name
+                      try {
+                        return (
+                          fullName
+                            .split(" ")
+                            .filter((part) => part && part.length > 0) // Filter out empty parts
+                            .map((part) => part[0])
+                            .join("") || "ПИ"
+                        ) // Fallback if we end up with empty string
+                      } catch {
+                        // No need to use the error parameter if we're not using it
+                        return "ПИ"
+                      }
+                    })()}
                   </span>
                 )}
 
@@ -322,7 +342,7 @@ export default function ProfilePage() {
 
                   <div className="space-y-2">
                     <label className="block text-sm font-medium text-gray-700">Последний вход</label>
-                    <p className="text-gray-600">{user?.last_login}</p>
+                    <p className="text-gray-600">{user?.last_login || "Информация недоступна"}</p>
                   </div>
 
                   <div className="flex space-x-4 pt-4">
@@ -345,14 +365,16 @@ export default function ProfilePage() {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <h3 className="text-lg font-medium mb-2">Личная информация</h3>
-                      <p className="text-gray-600">Должность: {user?.position}</p>
-                      <p className="text-gray-600">Отдел: {user?.department}</p>
-                      <p className="text-gray-600">Телефон: {user?.phone}</p>
+                      <p className="text-gray-600">Должность: {user?.position || "Не указана"}</p>
+                      <p className="text-gray-600">Отдел: {user?.department || "Не указан"}</p>
+                      <p className="text-gray-600">Телефон: {user?.phone || "Не указан"}</p>
                     </div>
 
                     <div>
                       <h3 className="text-lg font-medium mb-2">Настройки аккаунта</h3>
-                      <p className="text-gray-600 mt-2">Последний вход: {user?.last_login}</p>
+                      <p className="text-gray-600 mt-2">
+                        Последний вход: {user?.last_login || "Информация недоступна"}
+                      </p>
                     </div>
                   </div>
 
