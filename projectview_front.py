@@ -1,6 +1,7 @@
 import os
 import subprocess
 
+
 def get_gitignore_patterns(directory):
     gitignore_path = os.path.join(directory, ".gitignore")
     ignore_patterns = set()
@@ -11,15 +12,18 @@ def get_gitignore_patterns(directory):
                 line = line.strip()
                 if line and not line.startswith("#"):
                     ignore_patterns.add(line)
-    
-    ignore_patterns.update(["package-lock.json", "README.md", "node_modules", "*.js", "*.map", "*.json"])
+
+    ignore_patterns.update(
+        ["package-lock.json", "README.md", "node_modules", "*.js", "*.map", "*.json"]
+    )
     return ignore_patterns
 
 
 def is_ignored(path, ignore_patterns, base_directory):
     rel_path = os.path.relpath(path, base_directory)
     return any(
-        rel_path.startswith(pattern.rstrip("/") + os.sep) or rel_path == pattern.rstrip("/")
+        rel_path.startswith(pattern.rstrip("/") + os.sep)
+        or rel_path == pattern.rstrip("/")
         for pattern in ignore_patterns
     )
 
@@ -50,13 +54,17 @@ def combine_files_into_text(directory, output_file=None):
 
     # Generate directory structure using tree command
     try:
-        tree_output = subprocess.check_output(["tree", directory, "-I", "node_modules"], text=True)
+        tree_output = subprocess.check_output(
+            ["tree", directory, "-I", "node_modules"], text=True
+        )
         combined_content.append("# Directory Structure\n")
         combined_content.append(tree_output)
         combined_content.append("\n" + "=" * 80 + "\n")
     except FileNotFoundError:
         print("Tree command not found. Skipping directory structure.")
-        combined_content.append("# Directory structure not available (tree command not found)\n")
+        combined_content.append(
+            "# Directory structure not available (tree command not found)\n"
+        )
         combined_content.append("=" * 80 + "\n")
 
     # Process files
@@ -73,7 +81,9 @@ def combine_files_into_text(directory, output_file=None):
                 continue
 
             if file.endswith((".ts", ".tsx", ".json", ".css", ".scss")) or file in [
-                "next.config.js", "tsconfig.json", ".eslintrc.json",
+                "next.config.js",
+                "tsconfig.json",
+                ".eslintrc.json",
             ]:
                 print(f"Processing file: {file_path}")
 
