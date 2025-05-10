@@ -160,7 +160,7 @@ export default function GeneratedReportsPage() {
   if (loading) {
     return (
       <div className="container mx-auto py-8 px-4">
-        <h1 className="text-3xl font-bold text-[#0c1442] mb-6">Loading reports...</h1>
+        <h1 className="text-3xl font-bold text-[#0c1442] mb-6">Загрузка отчетов...</h1>
         <div className="flex justify-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#0c1442]"></div>
         </div>
@@ -170,17 +170,17 @@ export default function GeneratedReportsPage() {
 
   return (
     <div className="container mx-auto py-8 px-4">
-      <h1 className="text-3xl font-bold text-[#0c1442] mb-6">Generated Reports</h1>
+      <h1 className="text-3xl font-bold text-[#0c1442] mb-6">Сгенерированные Отчеты</h1>
 
       <Card className="p-6">
-        <p className="text-gray-600 mb-4">Access and manage all your reports in one place.</p>
+        <p className="text-gray-600 mb-4">Доступ и управление всеми вашими отчетами в одном месте.</p>
 
         {error && <div className="bg-red-50 border border-red-200 text-red-800 p-4 rounded-lg mb-6">{error}</div>}
 
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
           <div>
             <Input
-              placeholder="Search by title, type, or date"
+              placeholder="Поиск по названию, типу или дате"
               className="w-full"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
@@ -189,41 +189,41 @@ export default function GeneratedReportsPage() {
           <div>
             <Select value={reportTypeFilter} onValueChange={setReportTypeFilter}>
               <SelectTrigger>
-                <SelectValue placeholder="Report Type" />
+                <SelectValue placeholder="Тип отчета" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Types</SelectItem>
-                <SelectItem value="financial">Financial Summary</SelectItem>
-                <SelectItem value="sales">Sales Report</SelectItem>
-                <SelectItem value="inventory">Inventory Report</SelectItem>
-                <SelectItem value="marketing">Marketing Analytics</SelectItem>
+                <SelectItem value="all">Все Типы</SelectItem>
+                <SelectItem value="financial">Финансовое резюме</SelectItem>
+                <SelectItem value="sales">Отчет о продажах</SelectItem>
+                <SelectItem value="inventory">Инвентарный отчет</SelectItem>
+                <SelectItem value="marketing">Маркетинг Аналитика</SelectItem>
               </SelectContent>
             </Select>
           </div>
           <div>
             <Select value={dateFilter} onValueChange={setDateFilter}>
               <SelectTrigger>
-                <SelectValue placeholder="Creation Date" />
+                <SelectValue placeholder="Дата создания" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Dates</SelectItem>
-                <SelectItem value="newest">Newest First</SelectItem>
-                <SelectItem value="oldest">Oldest First</SelectItem>
-                <SelectItem value="last-week">Last Week</SelectItem>
-                <SelectItem value="last-month">Last Month</SelectItem>
+                <SelectItem value="all">Все Даты</SelectItem>
+                <SelectItem value="newest">Новейший Первый</SelectItem>
+                <SelectItem value="oldest">Старейший Первый</SelectItem>
+                <SelectItem value="last-week">Последняя Неделя</SelectItem>
+                <SelectItem value="last-month">Последний Месяц</SelectItem>
               </SelectContent>
             </Select>
           </div>
           <div>
             <Select value={statusFilter} onValueChange={setStatusFilter}>
               <SelectTrigger>
-                <SelectValue placeholder="Status" />
+                <SelectValue placeholder="Статус" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Statuses</SelectItem>
-                <SelectItem value="completed">Completed</SelectItem>
-                <SelectItem value="in-progress">In Progress</SelectItem>
-                <SelectItem value="failed">Failed</SelectItem>
+                <SelectItem value="all">Все Статусы</SelectItem>
+                <SelectItem value="completed">Завершено</SelectItem>
+                <SelectItem value="in-progress">В Прогрессе</SelectItem>
+                <SelectItem value="failed">Неудачный</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -232,9 +232,9 @@ export default function GeneratedReportsPage() {
         <div className="space-y-4">
           {filteredReports.length === 0 ? (
             <div className="text-center py-8">
-              <p className="text-gray-500">No reports found</p>
+              <p className="text-gray-500">Отчетов не найдено</p>
               <Button className="mt-4 bg-[#0c1442]" onClick={() => (window.location.href = "/reports/export")}>
-                Create New Report
+              Создать Новый Отчет
               </Button>
             </div>
           ) : (
@@ -243,7 +243,7 @@ export default function GeneratedReportsPage() {
                 <div className="flex flex-col md:flex-row justify-between">
                   <div className="space-y-2">
                     <h3 className="text-lg font-semibold">{report.title}</h3>
-                    <p className="text-sm text-gray-500">Created: {new Date(report.created_at).toLocaleString()}</p>
+                    <p className="text-sm text-gray-500">Создано: {new Date(report.created_at).toLocaleString()}</p>
                     <p className="text-sm text-gray-500">
                       Type:{" "}
                       {report.report_type === "financial"
@@ -260,17 +260,17 @@ export default function GeneratedReportsPage() {
                       {report.status === "completed" ? (
                         <>
                           <CheckCircle className="h-5 w-5 text-green-500 mr-2" />
-                          <span className="text-sm">Status: Completed</span>
+                          <span className="text-sm">Статус: Завершено</span>
                         </>
                       ) : report.status === "in-progress" ? (
                         <>
                           <Clock className="h-5 w-5 text-amber-500 mr-2" />
-                          <span className="text-sm">Status: In Progress</span>
+                          <span className="text-sm">Статус: В прогрессе</span>
                         </>
                       ) : (
                         <>
                           <AlertCircle className="h-5 w-5 text-red-500 mr-2" />
-                          <span className="text-sm">Status: Failed</span>
+                          <span className="text-sm">Статус: Неудачно</span>
                         </>
                       )}
                     </div>
@@ -281,7 +281,7 @@ export default function GeneratedReportsPage() {
                       disabled={report.status !== "completed"}
                       onClick={() => (window.location.href = `/view-report/${report.id}`)}
                     >
-                      View Report
+                      Просмотр Отчета
                     </Button>
                     <Button
                       variant="outline"
@@ -289,14 +289,14 @@ export default function GeneratedReportsPage() {
                       disabled={report.status !== "completed"}
                     >
                       <Download className="h-4 w-4 mr-2" />
-                      Download
+                      Скачать
                     </Button>
                     <Button
                       variant="outline"
                       onClick={() => shareReport(report.id)}
                       disabled={report.status !== "completed"}
                     >
-                      Share
+                      Поделиться
                     </Button>
                   </div>
                 </div>
