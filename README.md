@@ -3,7 +3,7 @@
 Virtus Corp is a web application designed for visual analysis of financial metrics for small businesses, individual entrepreneurs, and accounting companies operating on Russian marketplaces. The frontend is developed using **Next.js**, providing a fast, scalable, and SEO-optimized client experience.
 
 ## Overview
-
+  
 The frontend application allows users to:
 - View interactive financial dashboards.
 - Upload transaction and revenue data.
